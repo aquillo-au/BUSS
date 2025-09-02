@@ -12,13 +12,12 @@
   <div style="flex: 1; min-width: 300px;" data-controller="filter">
   <h2>Not Present</h2>
 
-  <!-- Search box -->
-  <%# <div class="mb-3">
+  <div class="mb-3">
     <input type="text"
            placeholder="Search guest..."
            data-action="input->filter#search"
            class="form-control">
-  </div> %>
+  </div>
 
   <div id="not_present_list" data-filter-target="list">
     <% @not_present.each do |person| %>
