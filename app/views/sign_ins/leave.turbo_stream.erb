@@ -1,0 +1,14 @@
+<turbo-stream action="append" target="not_present_list">
+  <template>
+    <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(@sign_in.person) %>">
+      <span class="guest-name"><%= @sign_in.person.name %></span>
+      <%= button_to "Sign In",
+          arrive_guest_path(@sign_in.person),
+          method: :post,
+          data: { turbo: true },
+          class: "btn btn-success btn-sm" %>
+    </div>
+  </template>
+</turbo-stream>
+
+<turbo-stream action="remove" target="<%= dom_id(@sign_in) %>"></turbo-stream>

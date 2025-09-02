@@ -1,0 +1,36 @@
+<!-- app/views/volunteers/index.html.erb -->
+<h1>Volunteers</h1>
+
+<!-- Add New Volunteer -->
+<div class="mb-4">
+  <%= form_with model: @new_volunteer, url: volunteers_path, local: true do |f| %>
+    <div class="d-flex gap-2">
+      <%= f.text_field :name, placeholder: "Volunteer name", required: true, class: "form-control" %>
+      <%= f.email_field :email, placeholder: "Email", class: "form-control" %>
+      <%= f.telephone_field :phone, placeholder: "Phone", class: "form-control" %>
+      <%= f.submit "Add & Sign In", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- List Existing Volunteers -->
+<div id="volunteer_list">
+  <% @volunteers.each do |volunteer| %>
+    <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(volunteer) %>">
+      <span class="guest-name"><%= volunteer.name %></span>
+      <% if volunteer.present? %>
+        <span class="badge bg-success">Signed In</span>
+      <% else %>
+        <%= button_to "Sign In",
+                      arrive_volunteer_path(volunteer),
+                      method: :post,
+                      data: { turbo: true },
+                      class: "btn btn-success btn-sm" %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<div id="back">
+  <%= link_to "Back to Guests", guests_path, class: "btn btn-secondary ms-2" %>
+</div>

@@ -1,0 +1,10 @@
+<h2>Edit Person</h2>
+
+<%= form_with model: @person, url: guest_path(@person), method: :patch, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :name %>
+    <%= f.text_field :name, class: "form-control" %>
+  </div>
+  <%= f.submit "Save Changes", class: "btn btn-primary" %>
+  <%= link_to "Cancel", guests_path, class: "btn btn-secondary" %>
+<% end %>

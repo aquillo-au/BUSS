@@ -1,0 +1,17 @@
+<h2>Put the program and how many extra meals</h2>
+
+<%= form_with model: @note, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :info %>
+    <%= f.text_field :info, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :amount %>
+    <%= f.number_field :amount, value: 1, min: 0, step: 1, class: "form-control form-control-sm", style: "width: 80px;", required: true %>
+  </div>
+
+
+  <%= f.submit "Submit note", class: "btn btn-danger" %>
+  <%= link_to "Cancel", guests_path, class: "btn btn-secondary ms-2" %>
+<% end %>

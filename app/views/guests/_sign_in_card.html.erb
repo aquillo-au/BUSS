@@ -1,0 +1,8 @@
+<div class="card mb-2" id="<%= dom_id(sign_in) %>">
+  <span class="guest-name"><%= sign_in.person.name %></span>
+  <%= button_to "Sign Out",
+      leave_sign_in_path(sign_in),
+      method: :patch,
+      data: { turbo: true },
+      class: "btn btn-danger btn-sm" %>
+</div>

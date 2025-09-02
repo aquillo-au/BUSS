@@ -1,0 +1,21 @@
+<%= turbo_stream.prepend "present_list" do %>
+  <div class="card mb-2" id="<%= dom_id(@new_person.sign_ins.last) %>">
+    <span class="guest-name"><%= @new_person.name %></span>
+    <%= button_to "Sign Out",
+                  leave_sign_in_path(@new_person.sign_ins.last),
+                  method: :patch,
+                  data: { turbo: true },
+                  class: "btn btn-danger btn-sm" %>
+  </div>
+<% end %>
+
+<%= turbo_stream.update "new_person_form" do %>
+  <%= form_with model: Person.new, url: guests_path, local: false, id: "new_person_form" do |f| %>
+    <%= f.text_field :name, placeholder: "Add new guest", required: true %>
+    <%= f.submit "Add & Sign In", class: "btn btn-primary" %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update "new_person_errors" do %>
+  <!-- Clear errors -->
+<% end %>

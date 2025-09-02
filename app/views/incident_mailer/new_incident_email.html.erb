@@ -1,0 +1,5 @@
+<h1>New Incident Logged</h1>
+
+<p><strong>Title:</strong> <%= @incident.title %></p>
+<p><strong>Description:</strong> <%= @incident.description %></p>
+<p>Logged at: <%= @incident.created_at.strftime("%d %b %Y %H:%M") %></p>

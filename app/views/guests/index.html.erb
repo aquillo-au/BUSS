@@ -1,0 +1,85 @@
+<h1>Guest Sign-In</h1>
+<!-- Add New Guest -->
+<div id="new_person_form" class="mt-4">
+  <%= form_with model: @new_person, url: guests_path, local: false do |f| %>
+    <%= f.text_field :name, placeholder: "Add new guest", required: true, class: "form-control d-inline-block w-auto" %>
+    <%= f.submit "Add & Sign In", class: "btn btn-primary" %>
+  <% end %>
+</div>
+
+<div class="d-flex flex-wrap gap-4 mt-4">
+  <!-- Not Present Column with Search -->
+  <div style="flex: 1; min-width: 300px;" data-controller="filter">
+  <h2>Not Present</h2>
+
+  <!-- Search box -->
+  <%# <div class="mb-3">
+    <input type="text"
+           placeholder="Search guest..."
+           data-action="input->filter#search"
+           class="form-control">
+  </div> %>
+
+  <div id="not_present_list" data-filter-target="list">
+    <% @not_present.each do |person| %>
+      <div class="card mb-2 d-flex justify-content-between align-items-center p-2"
+           id="<%= dom_id(person) %>"
+           data-filter-target="item">
+        <span class="guest-name"><%= person.name %></span>
+        <%= button_to "Sign In",
+                      arrive_guest_path(person),
+                      method: :post,
+                      data: { turbo: true },
+                      class: "btn btn-success btn-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+  <!-- Present Column -->
+  <div style="flex: 1; min-width: 300px;">
+    <h2>Present</h2>
+    <div id="present_list">
+      <% @present_sign_ins.each do |sign_in| %>
+        <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(sign_in) %>">
+          <span class="guest-name"><%= sign_in.person.name %></span>
+          <%= button_to "Sign Out",
+                        leave_sign_in_path(sign_in),
+                        method: :patch,
+                        data: { turbo: true },
+                        class: "btn btn-danger btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div id="new_person_errors"></div>
+
+<!-- Link to history (optional) -->
+<div class="mt-4">
+  <%#= link_to "View Sign-In History", history_guests_path, class: "btn btn-secondary" %>
+</div>
+
+<!-- Incident logging -->
+<div class="fab-container">
+  <%= link_to new_incident_path, class: "fab btn btn-danger btn-lg rounded-circle position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center" do %>
+    <span class="fab-icon me-2">!</span>
+    <span class="fab-text">Log an Incident</span>
+  <% end %>
+</div>
+<div class="fab-container">
+  <%= link_to new_note_path,
+              class: "fab btn btn-warning btn-lg rounded-circle position-fixed bottom-0 start-50 translate-middle-x m-4 d-flex align-items-center justify-content-center" do %>
+    <span class="fab-icon me-2">📝</span>
+    <span class="fab-text">Extra meals</span>
+  <% end %>
+</div>
+<!-- Volunteers FAB  -->
+<div class="fab-container">
+  <%= link_to volunteers_path,
+              class: "fab btn btn-primary btn-lg rounded-circle position-fixed bottom-0 start-0 m-4 d-flex align-items-center justify-content-center" do %>
+    <span class="fab-icon me-2">V</span>
+    <span class="fab-text">Volunteers</span>
+  <% end %>
+</div>

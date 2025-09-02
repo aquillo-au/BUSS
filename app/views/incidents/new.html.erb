@@ -1,0 +1,16 @@
+<h2>Log New Incident</h2>
+
+<%= form_with model: @incident, local: true do |f| %>
+  <div class="mb-3">
+    <%= f.label :title %>
+    <%= f.text_field :title, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :description %>
+    <%= f.text_area :description, class: "form-control", rows: 5, required: true %>
+  </div>
+
+  <%= f.submit "Submit Incident", class: "btn btn-danger" %>
+  <%= link_to "Cancel", guests_path, class: "btn btn-secondary ms-2" %>
+<% end %>

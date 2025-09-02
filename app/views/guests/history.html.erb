@@ -1,0 +1,27 @@
+<h1>Guest History</h1>
+
+<!-- Filter form -->
+<%= form_with url: history_guests_path, method: :get, local: true, class: "filter-form" do |f| %>
+  <%= f.label :date, "Show logs for date:" %>
+  <%= f.date_field :date, value: params[:date] %>
+  <%= f.submit "Filter", class: "btn btn-primary" %>
+  <%= link_to "Clear", history_guests_path, class: "btn btn-secondary" %>
+<% end %>
+
+<div class="history-cards">
+  <% @sign_ins.each do |sign| %>
+    <div class="card <%= sign.left_at.present? ? 'left' : 'present' %>">
+      <div class="guest-name"><%= sign.person.name %></div>
+      <div class="timestamps">
+        <span>Arrived: <%= sign.arrived_at.strftime("%d/%m/%Y %H:%M") %></span>
+        <% if sign.left_at.present? %>
+          <span>Left: <%= sign.left_at.strftime("%d/%m/%Y %H:%M") %></span>
+        <% else %>
+          <span class="still-present">Still Present</span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%= link_to "Back to Guests", root_path, class: "btn btn-secondary mt-3" %>
