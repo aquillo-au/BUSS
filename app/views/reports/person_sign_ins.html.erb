@@ -1,0 +1,102 @@
+<h1>Sign-ins for <%= @person.name %></h1>
+
+<%= form_with url: reports_person_sign_ins_path(@person), method: :get, local: true, class: "mb-3 row g-2 align-items-end" do |f| %>
+  <div class="col-auto">
+    <%= f.label :from, "From" %>
+    <%= f.date_field :from, value: params[:from], class: "form-control" %>
+  </div>
+  <div class="col-auto">
+    <%= f.label :to, "To" %>
+    <%= f.date_field :to, value: params[:to], class: "form-control" %>
+  </div>
+  <div class="col-auto">
+    <%= f.submit "Filter", class: "btn btn-primary" %>
+    <%= link_to "Clear", reports_person_sign_ins_path(@person), class: "btn btn-secondary ms-1" %>
+  </div>
+<% end %>
+
+<p class="text-muted">
+  Rolling averages use the calculation cap of <%= SignIn::CAP_MINUTES_DEFAULT %> minutes per visit. The “Duration” column shows the actual time spent.
+</p>
+
+<div class="mb-3">
+  <span class="badge text-bg-dark">Distinct programs joined: <%= @distinct_programs_count %></span>
+</div>
+
+<% if @program_stats.present? %>
+  <div class="card mb-4">
+    <div class="card-header">
+      <strong>Per-program averages</strong>
+      <span class="text-muted ms-2">(averages use the capped duration)</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-sm mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Program</th>
+            <th class="text-end">Visits</th>
+            <th class="text-end">Average (min)</th>
+            <th>First sign-in</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @program_stats.each do |ps| %>
+            <tr>
+              <td><%= ps[:program] %></td>
+              <td class="text-end"><%= ps[:visits] %></td>
+              <td class="text-end"><%= ps[:average_minutes] %></td>
+              <td>
+                <% if ps[:first_seen_at].present? %>
+                  <%= ps[:first_seen_at].strftime("%Y-%m-%d %H:%M") %>
+                <% else %>
+                  —
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<% if @rows.blank? %>
+  <div class="alert alert-info">No sign-ins found for the selected period.</div>
+<% else %>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Program</th>
+          <th class="text-end">Program Rolling Avg (min)</th>
+          <th class="text-end">Duration (min)</th>
+          <th class="text-end">Rolling Avg (min)</th>
+          <th>Arrived</th>
+          <th>Left</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @rows.each_with_index do |row, idx| %>
+          <% s = row[:sign_in] %>
+          <tr>
+            <td><%= idx + 1 %></td>
+            <td><%= s.arrived_at&.to_date&.strftime("%Y-%m-%d") %></td>
+            <td>
+              <%= row[:program] %>
+              <% if row[:first_in_program] && row[:program] != "Uncategorized" %>
+                <span class="badge text-bg-info ms-1">First time</span>
+              <% end %>
+            </td>
+            <td class="text-end"><%= row[:program_rolling_avg_minutes] %></td>
+            <td class="text-end"><%= row[:actual_minutes] %></td>
+            <td class="text-end"><%= row[:rolling_avg_minutes] %></td>
+            <td><%= s.arrived_at&.strftime("%H:%M") %></td>
+            <td><%= s.left_at ? s.left_at.strftime("%H:%M") : "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

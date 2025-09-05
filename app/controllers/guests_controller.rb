@@ -1,4 +1,5 @@
 class GuestsController < ApplicationController
+  before_action :auto_logout_overdue
   before_action :set_person, only: [:edit, :update, :destroy, :arrive]
 
   def index
@@ -57,16 +58,26 @@ class GuestsController < ApplicationController
   end
 
   def history
-    @sign_ins = SignIn.includes(:person).order(created_at: :desc)
+    @sign_ins = SignIn.includes(:person).order(arrived_at: :desc)
+    @people = Person.all
+    @grouped_sign_ins = {
+      "Frypan Warriors" => @sign_ins.select { |s| s.arrived_at.monday? },
+      "Smart Lunch" => @sign_ins.select { |s| s.arrived_at.wednesday? },
+      "Bathurst Buddies" => @sign_ins.select { |s| s.arrived_at.friday? },
+      "Cafe" => @sign_ins.select { |s| s.arrived_at.saturday? || s.arrived_at.sunday? }
+    }
   end
 
   private
+  def auto_logout_overdue
+    SignIn.auto_logout_overdue!
+  end
 
   def set_person
     @person = Person.find(params[:id])
   end
 
   def person_params
-    params.require(:person).permit(:name)
+    params.require(:person).permit(:name, :email, :phone, :volunteer)
   end
 end

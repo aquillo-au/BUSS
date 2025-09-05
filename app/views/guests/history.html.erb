@@ -1,27 +1,74 @@
-<h1>Guest History</h1>
+<h1>History</h1>
+  <!-- Toggle: Everyone -->
+  <div data-controller="toggle" class="mb-4">
+    <button class="btn btn-secondary" data-action="click->toggle#toggle">
+      <span data-toggle-target="label">Show/edit people</span>
+    </button>
 
-<!-- Filter form -->
-<%= form_with url: history_guests_path, method: :get, local: true, class: "filter-form" do |f| %>
-  <%= f.label :date, "Show logs for date:" %>
-  <%= f.date_field :date, value: params[:date] %>
-  <%= f.submit "Filter", class: "btn btn-primary" %>
-  <%= link_to "Clear", history_guests_path, class: "btn btn-secondary" %>
-<% end %>
-
-<div class="history-cards">
-  <% @sign_ins.each do |sign| %>
-    <div class="card <%= sign.left_at.present? ? 'left' : 'present' %>">
-      <div class="guest-name"><%= sign.person.name %></div>
-      <div class="timestamps">
-        <span>Arrived: <%= sign.arrived_at.strftime("%d/%m/%Y %H:%M") %></span>
-        <% if sign.left_at.present? %>
-          <span>Left: <%= sign.left_at.strftime("%d/%m/%Y %H:%M") %></span>
-        <% else %>
-          <span class="still-present">Still Present</span>
+    <div class="mt-3 card card-body" data-toggle-target="panel" hidden>
+      <h2 class="h5 mb-3">Everyone</h2>
+      <ul class="list-group">
+        <% @people.each do |person| %>
+          <li class="list-group-item d-flex align-items-center justify-content-between">
+            <div>
+              <strong><%= link_to person.name, reports_person_sign_ins_path(person), class: "text-decoration-none" %></strong>
+              <%# Add more details when available, e.g., person.phone, person.notes %>
+            </div>
+            <div class="d-flex gap-2">
+              <%= link_to "Edit", edit_guest_path(person), class: "btn btn-sm btn-outline-primary" %>
+              <%# You can add a 'Show' link if you have a show page: link_to "Details", guest_path(person) %>
+            </div>
+          </li>
         <% end %>
+      </ul>
+    </div>
+<% @grouped_sign_ins.each do |group_name, items| %>
+  <% next if items.empty? %>
+  <div class="mb-4" data-controller="toggle" data-toggle-show-text-value="Show <%= group_name %>" data-toggle-hide-text-value="Hide <%= group_name %>">
+    <button class="btn btn-secondary" data-action="click->toggle#toggle">
+      <span data-toggle-target="label">Show <%= group_name %></span>
+      <span class="badge text-bg-light ms-2"><%= items.size %></span>
+    </button>
+
+    <div class="mt-3 card" data-toggle-target="panel" hidden>
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong><%= group_name %></strong>
+        <span class="text-muted"><%= items.size %> sign-in<%= "s" unless items.size == 1 %></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0 align-middle">
+          <thead>
+            <tr>
+              <th>Person</th>
+              <th>Arrived</th>
+              <th>Left</th>
+              <th class="text-end">Duration (min)</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% items.each do |sign_in| %>
+              <tr>
+                <td><%= link_to sign_in.person.name, reports_person_sign_ins_path(sign_in.person) %></td>
+                <td><%= sign_in.arrived_at.strftime("%d/%m/%Y %H:%M") %></td>
+                <td>
+                  <% if sign_in.left_at.present? %>
+                    <%= sign_in.left_at.strftime("%d/%m/%Y %H:%M") %>
+                  <% else %>
+                    <span class="badge text-bg-success">Still Present</span>
+                  <% end %>
+                </td>
+                <td class="text-end"><%= sign_in.duration_in_minutes %></td>
+                <td class="text-end">
+                  <%= link_to "Edit", edit_guest_path(sign_in.person), class: "btn btn-sm btn-outline-primary" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
       </div>
     </div>
-  <% end %>
-</div>
-
+  </div>
+<% end %>
+<%= link_to "Group times", reports_category_averages_path, class: "btn btn-secondary mt-3" %>
 <%= link_to "Back to Guests", root_path, class: "btn btn-secondary mt-3" %>
