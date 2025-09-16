@@ -6,8 +6,6 @@
   <%= form_with model: @new_volunteer, url: volunteers_path, local: true do |f| %>
     <div class="d-flex gap-2">
       <%= f.text_field :name, placeholder: "Volunteer name", required: true, class: "form-control" %>
-      <%= f.email_field :email, placeholder: "Email", class: "form-control" %>
-      <%= f.telephone_field :phone, placeholder: "Phone", class: "form-control" %>
       <%= f.submit "Add & Sign In", class: "btn btn-primary" %>
     </div>
   <% end %>

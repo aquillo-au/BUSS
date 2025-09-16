@@ -11,11 +11,13 @@ class VolunteersController < ApplicationController
     if volunteer
       # Update existing person
       volunteer.update(volunteer_params.merge(volunteer: true, present: true))
+      SignIn.create!(person: volunteer, arrived_at: Time.current, volunteer: true)
       redirect_to volunteers_path, notice: "#{volunteer.name} updated and signed in!"
     else
       # Create new volunteer
       @volunteer = Person.new(volunteer_params.merge(volunteer: true, present: true))
       if @volunteer.save
+        SignIn.create!(person: @volunteer, arrived_at: Time.current, volunteer: true)
         redirect_to volunteers_path, notice: "Volunteer created and signed in!"
       else
         @volunteers = Person.where(volunteer: true)
@@ -27,7 +29,7 @@ class VolunteersController < ApplicationController
   def arrive
     volunteer = Person.find(params[:id])
     volunteer.update(present: true, volunteer: true)
-    SignIn.create!(person: volunteer, arrived_at: Time.current)
+    SignIn.create!(person: volunteer, arrived_at: Time.current, volunteer: true)
     redirect_to volunteers_path, notice: "#{volunteer.name} signed in!"
   end
 

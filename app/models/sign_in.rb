@@ -47,11 +47,12 @@ class SignIn < ApplicationRecord
     return nil unless arrived_at
     case arrived_at.wday
     when 1 then "Frypan Warriors"   # Monday
+    when 2 then "Bible Study"       # Tuesday
     when 3 then "Smart Lunch"       # Wednesday
     when 5 then "Bathurst Buddies"  # Friday
     when 6, 0 then "Cafe"           # Saturday, Sunday
     else
-      nil                           # Exclude Tuesday/Thursday
+      nil                           # Exclude Thursday
     end
   end
 end

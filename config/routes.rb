@@ -36,7 +36,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :incidents, only: [ :new, :create ]
+  resources :incidents, only: [ :index, :new, :create, :destroy ]
   resources :notes, only: [ :new, :create ]
 
   # Reports
