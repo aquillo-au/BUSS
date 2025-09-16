@@ -1,14 +1,14 @@
-<turbo-stream action="append" target="present_list">
-  <template>
-    <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(@sign_in) %>">
-      <span class="guest-name"><%= @sign_in.person.name %></span>
-      <%= button_to "Sign Out",
-          leave_sign_in_path(@sign_in),
-          method: :patch,
-          data: { turbo: true },
-          class: "btn btn-danger btn-sm" %>
-    </div>
-  </template>
-</turbo-stream>
+<%= turbo_stream.prepend "present_list" do %>
+  <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(@sign_in) %>">
+    <span class="guest-name"><%= @person.name %></span>
+    <%= button_to "Sign Out",
+                  leave_sign_in_path(@sign_in),
+                  method: :patch,
+                  data: { turbo: true },
+                  class: "btn btn-danger btn-sm" %>
+  </div>
+<% end %>
 
-<turbo-stream action="remove" target="<%= dom_id(@sign_in.person) %>"></turbo-stream>
+<%= turbo_stream.update "todays_unique_people_count" do %>
+  <%= @todays_unique_people_count %>
+<% end %>

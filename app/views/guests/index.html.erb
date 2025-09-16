@@ -1,4 +1,13 @@
 <h1>Guest Sign-In</h1>
+
+<!-- Today's unique people counter -->
+<div class="mt-2">
+  <span class="badge text-bg-primary">
+    Total people today:
+    <span id="todays_unique_people_count"><%= @todays_unique_people_count %></span>
+  </span>
+</div>
+
 <!-- Add New Guest -->
 <div id="new_person_form" class="mt-4">
   <%= form_with model: @new_person, url: guests_path, local: false do |f| %>

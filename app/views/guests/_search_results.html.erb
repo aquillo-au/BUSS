@@ -1,0 +1,31 @@
+<%# Renders when @search_query is present on the index page %>
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <div>
+      <strong>Search results</strong>
+      <span class="text-muted">for “<%= @search_query %>”</span>
+    </div>
+    <span class="badge text-bg-light"><%= @search_results.size %></span>
+  </div>
+
+  <ul class="list-group list-group-flush">
+    <% @search_results.each do |person| %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+          <strong><%= person.name %></strong>
+          <% if person.archived? %>
+            <span class="badge text-bg-secondary">Archived</span>
+          <% end %>
+          <% if person.present? %>
+            <span class="badge text-bg-success">Present</span>
+          <% end %>
+        </div>
+        <div class="d-flex gap-2">
+          <%= link_to "Edit", edit_guest_path(person), class: "btn btn-sm btn-outline-primary" %>
+          <%# Optional: quick sign-in from search (will unarchive via controller if archived) %>
+          <%= button_to "Sign in", arrive_guest_path(person), method: :post, class: "btn btn-sm btn-outline-success" %>
+        </div>
+      </li>
+    <% end %>
+  </ul>
+</div>

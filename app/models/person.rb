@@ -3,6 +3,9 @@ class Person < ApplicationRecord
 
   has_many :sign_ins, dependent: :destroy
 
+  scope :active, -> { where(archived: false) }
+  scope :archived, -> { where(archived: true) }
+
   def present!
     update!(present: true)
   end

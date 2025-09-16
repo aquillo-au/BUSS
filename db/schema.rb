@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_02_222408) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_222410) do
   create_table "incidents", force: :cascade do |t|
     t.string "title"
     t.string "description"
@@ -33,6 +33,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_222408) do
     t.boolean "present", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "archived", default: false, null: false
+    t.index ["archived"], name: "index_people_on_archived"
     t.index ["name"], name: "index_people_on_name", unique: true
   end
 

@@ -1,31 +1,41 @@
 class GuestsController < ApplicationController
   before_action :auto_logout_overdue
-  before_action :set_person, only: [:edit, :update, :destroy, :arrive]
+  before_action :set_person, only: [:edit, :update, :destroy, :arrive, :archive, :unarchive]
 
   def index
     @people = Person.all
-    @not_present = Person.where(present: false).order(:name)
-    @present_sign_ins = SignIn.joins(:person).where(left_at: nil).order('people.name')
+    @not_present = Person.where(present: false, archived: false).order(:name)
+    @present_sign_ins = SignIn.joins(:person).where(left_at: nil, people: { archived: false }).order('people.name')
     @new_person = Person.new
   end
 
+
   def create
-    @new_person = Person.new(person_params)
+    # Try to find an archived person that matches the submitted info.
+    attrs = person_params
+    candidate = find_existing_candidate(attrs)
 
-    respond_to do |format|
-      if @new_person.save
-        # Auto sign in
-        sign_in = SignIn.create!(person: @new_person, arrived_at: Time.current)
-        @new_person.present!
+    if candidate&.archived?
+      # Backfill any missing fields on the archived person with the newly submitted details.
+      updates = {}
+      updates[:email] = attrs[:email] if candidate.email.blank? && attrs[:email].present?
+      updates[:phone] = attrs[:phone] if candidate.phone.blank? && attrs[:phone].present?
+      updates[:volunteer] = attrs[:volunteer] if candidate.volunteer.nil? && attrs.key?(:volunteer)
+      updates[:archived] = false
 
+      candidate.update!(updates) unless updates.empty?
+      @new_person = candidate
+
+      # Sign them in
+      SignIn.create!(person: @new_person, arrived_at: Time.current)
+      @new_person.present!
+
+      respond_to do |format|
         format.turbo_stream
-        format.html { redirect_to guests_path, notice: "#{@new_person.name} added and signed in." }
-      else
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("new_person_errors", partial: "new_person_errors") }
-        format.html { render :index, status: :unprocessable_entity }
+        format.html { redirect_to guests_path, notice: "#{@new_person.name} was unarchived and signed in." }
       end
+      return
     end
-  end
 
   def edit
   end
@@ -41,13 +51,17 @@ class GuestsController < ApplicationController
   def destroy
     @person.destroy
     respond_to do |format|
-      format.turbo_stream # will render destroy.turbo_stream.erb
+      format.turbo_stream
       format.html { redirect_to guests_path, notice: "Person deleted." }
     end
   end
 
   def arrive
     @person = Person.find(params[:id])
+
+    # Unarchive if signing in
+    @person.update!(archived: false)
+
     @sign_in = SignIn.create!(person: @person, arrived_at: Time.current)
     @person.present!
 
@@ -68,7 +82,35 @@ class GuestsController < ApplicationController
     }
   end
 
+  def archive
+    @person.update!(archived: true, present: false)
+    redirect_back fallback_location: history_guests_path, notice: "#{@person.name} archived."
+  end
+
+  def unarchive
+    @person.update!(archived: false)
+    redirect_back fallback_location: history_guests_path, notice: "#{@person.name} unarchived."
+  end
+
   private
+
+  def find_existing_candidate(attrs)
+    if attrs[:email].present?
+      person = Person.where("LOWER(email) = ?", attrs[:email].downcase).first
+      return person if person
+    end
+
+    if attrs[:phone].present?
+      person = Person.where(phone: attrs[:phone]).first
+      return person if person
+    end
+
+    if attrs[:name].present?
+      return Person.where("LOWER(name) = ?", attrs[:name].downcase).first
+    end
+    nil
+  end
+
   def auto_logout_overdue
     SignIn.auto_logout_overdue!
   end

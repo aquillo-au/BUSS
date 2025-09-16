@@ -24,3 +24,51 @@
   <%= f.submit "Save Changes", class: "btn btn-primary" %>
   <%= link_to "Cancel", guests_path, class: "btn btn-secondary ms-2" %>
 <% end %>
+
+<hr class="my-4">
+
+<div class="card border-warning">
+  <div class="card-header bg-warning">
+    Archive
+  </div>
+  <div class="card-body">
+    <% if @person.archived? %>
+      <p class="mb-2">This person is archived and will not appear in guest lists. They will still appear in search results.</p>
+      <%= button_to "Unarchive Person",
+                    unarchive_guest_path(@person),
+                    method: :patch,
+                    class: "btn btn-success",
+                    data: { turbo_confirm: "Unarchive #{@person.name}?" } %>
+    <% else %>
+      <p class="mb-2">Archiving hides this person from guest lists but keeps their data and sign-ins.</p>
+      <%= button_to "Archive Person",
+                    archive_guest_path(@person),
+                    method: :patch,
+                    class: "btn btn-outline-warning",
+                    data: { turbo_confirm: "Archive #{@person.name}? They will be hidden from guest lists but still appear in search." } %>
+    <% end %>
+  </div>
+</div>
+
+<hr class="my-4">
+
+<div class="card border-danger">
+  <div class="card-header bg-danger text-white">
+    Danger Zone
+  </div>
+  <div class="card-body">
+    <p class="mb-2">
+      Warning: Deleting this person will permanently remove all their sign-in records
+      (<strong><%= @person.sign_ins.count %></strong> total). This action cannot be undone.
+    </p>
+    <%= button_to "Delete Person",
+                  guest_path(@person),
+                  method: :delete,
+                  form: { class: "d-inline" },
+                  data: {
+                    turbo_confirm: "Are you sure? This will permanently delete #{@person.name} and ALL their sign-in records. This cannot be undone.",
+                    turbo: false
+                  },
+                  class: "btn btn-danger" %>
+  </div>
+</div>

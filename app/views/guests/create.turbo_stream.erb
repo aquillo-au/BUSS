@@ -1,5 +1,5 @@
 <%= turbo_stream.prepend "present_list" do %>
-  <div class="card mb-2" id="<%= dom_id(@new_person.sign_ins.last) %>">
+  <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(@new_person.sign_ins.last) %>">
     <span class="guest-name"><%= @new_person.name %></span>
     <%= button_to "Sign Out",
                   leave_sign_in_path(@new_person.sign_ins.last),
@@ -7,6 +7,10 @@
                   data: { turbo: true },
                   class: "btn btn-danger btn-sm" %>
   </div>
+<% end %>
+
+<%= turbo_stream.update "todays_unique_people_count" do %>
+  <%= @todays_unique_people_count %>
 <% end %>
 
 <%= turbo_stream.update "new_person_form" do %>
