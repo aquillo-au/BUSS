@@ -63,6 +63,14 @@ class GuestsController < ApplicationController
   def edit
   end
 
+  def merge
+    @person = Person.find(params[:id])
+    target = Person.find(params[:merge_with_id])
+    target.merge_with!(@person)
+    redirect_to edit_guest_path(target), notice: "Merged successfully!"
+  end
+
+
   def update
     if @person.update(person_params)
       redirect_to guests_path, notice: "Person updated successfully."

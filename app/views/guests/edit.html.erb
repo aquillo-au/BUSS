@@ -26,7 +26,16 @@
 <% end %>
 
 <hr class="my-4">
-
+<%= form_with url: merge_guest_path(@person), method: :post do %>
+  <div class="mb-3">
+    <label for="merge_with_id">Merge this person into: (this will delete the current person and move all records to the selected person)</label>
+    <%= select_tag :merge_with_id,
+      options_from_collection_for_select(Person.where.not(id: @person.id), :id, :name),
+      prompt: "Select person to merge into",
+      class: "form-select" %>
+  </div>
+  <%= submit_tag "Merge People", class: "btn btn-danger", data: { turbo_confirm: "Are you sure? This will move all sign-ins and notes from this person into the selected person and delete this record." } %>
+<% end %>
 <div class="card border-warning">
   <div class="card-header bg-warning">
     Archive

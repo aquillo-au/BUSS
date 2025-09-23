@@ -1,4 +1,18 @@
 <h1>History</h1>
+
+<%
+  year_start = Time.current.beginning_of_year
+  relevant_sign_ins = SignIn.includes(:person).where("arrived_at >= ?", year_start)
+  total_signins = relevant_sign_ins.count
+  total_individuals = relevant_sign_ins.map(&:person_id).uniq.compact.size
+  total_meals = relevant_sign_ins.select(&:meal_served?).size
+%>
+<div class="alert alert-info mb-4">
+  <strong>The Year so far:</strong>
+  <span class="me-3">Total Sign-ins: <%= total_signins %></span>
+  <span class="me-3">Total Individuals: <%= total_individuals %></span>
+  <span>Total Meals Served: <%= total_meals %></span>
+</div>
   <!-- Toggle: Everyone -->
   <div data-controller="toggle" class="mb-4">
     <button class="btn btn-secondary" data-action="click->toggle#toggle">
@@ -48,67 +62,64 @@
 <%# Notes grouped by day for meals-served totals (nil-safe) %>
 <% notes_by_date = Note.all.group_by { |n| n.created_at&.to_date } %>
 
-<%# Ensure we have grouped sign-ins; fall back to computing it here if controller didn't set it %>
 <%
-  grouped = if defined?(@grouped_sign_ins) && @grouped_sign_ins.present?
-    @grouped_sign_ins
-  else
-    all_sign_ins = SignIn.includes(:person).order(arrived_at: :desc)
-    {
-      "Frypan Warriors"   => all_sign_ins.select { |s| s.arrived_at&.monday? },
-      "Bible Study"   => all_sign_ins.select { |s| s.arrived_at&.tuesday? },
-      "Smart Lunch"       => all_sign_ins.select { |s| s.arrived_at&.wednesday? },
-      "Bathurst Buddies"  => all_sign_ins.select { |s| s.arrived_at&.friday? },
-      "Cafe"              => all_sign_ins.select { |s| s.arrived_at&.saturday? || s.arrived_at&.sunday? }
-    }
-  end
-
-  # Build a cache of people by id across everything we’ll render (covers all groups/days)
-  all_sign_ins_for_cache = grouped.values.flatten
-  people_ids = all_sign_ins_for_cache.map(&:person_id).compact.uniq
-  people_by_id = Person.where(id: people_ids).index_by(&:id)
+  grouped = SignIn.includes(:person).order(arrived_at: :desc).group_by(&:category_label)
+  category_order = [
+    "Frypan Warriors",
+    "Working Group",
+    "Bible Study",
+    "Board Meetings",
+    "Smart Lunch",
+    "Activities",
+    "Bathurst Buddies",
+    "Community Gardens",
+    "Music BUSS",
+    "Cafe",
+    "Misc/Unknown"
+  ]
+  grouped = grouped.sort_by { |cat, _| category_order.index(cat) || 999 }
 %>
 
-<% grouped.each do |group_name, items| %>
-  <% items ||= [] %>
+<% grouped.each do |category, items| %>
   <% next if items.empty? %>
-
-  <div class="mb-4" data-controller="toggle" data-toggle-show-text-value="Show <%= group_name %>" data-toggle-hide-text-value="Hide <%= group_name %>">
+  <div class="mb-4" data-controller="toggle" data-toggle-show-text-value="Show <%= category %>" data-toggle-hide-text-value="Hide <%= category %>">
     <button class="btn btn-secondary" data-action="click->toggle#toggle">
-      <span data-toggle-target="label">Show <%= group_name %></span>
+      <span data-toggle-target="label">Show <%= category %></span>
       <span class="badge text-bg-light ms-2"><%= items.size %></span>
     </button>
 
     <div class="mt-3 card" data-toggle-target="panel" hidden>
-      <%# COMPUTE GROUP TOTALS (meals served and avg time) TO SHOW IN HEADER %>
       <% grouped_days = items.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? } %>
-      <% group_total_meals_served = grouped_days.sum do |day, daily_items|
-           daily_unique_people = daily_items.map(&:person_id).compact.uniq.size
-           notes_total = (notes_by_date[day] || []).sum { |n| n.amount.to_i }
-           daily_unique_people + notes_total
-         end %>
-      <% per_person_minutes_group = items.group_by(&:person_id).reject { |pid, _| pid.nil? }.values.map { |arr| arr.sum { |s| s.duration_in_minutes.to_i } } %>
-      <% group_avg_minutes = per_person_minutes_group.present? ? (per_person_minutes_group.sum.to_f / per_person_minutes_group.size).round : 0 %>
+      <% group_total_meals_served = items.select(&:meal_served?).size %>
+<%
+  # For average with volunteers (existing logic)
+  per_person_minutes_group = items.group_by(&:person_id).reject { |pid, _| pid.nil? }.values.map { |arr| arr.sum { |s| s.duration_in_minutes.to_i } }
+  group_avg_minutes = per_person_minutes_group.present? ? (per_person_minutes_group.sum.to_f / per_person_minutes_group.size).round : 0
 
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <strong><%= group_name %></strong>
-        <div class="d-flex align-items-center gap-2">
-          <span class="text-muted"><%= items.size %> sign-in<%= "s" unless items.size == 1 %></span>
-          <% if group_total_meals_served.positive? %>
-            <span class="badge text-bg-primary">Meals served: <%= group_total_meals_served %></span>
-          <% end %>
-          <span class="badge text-bg-dark">Avg time: <%= group_avg_minutes %> min</span>
-        </div>
-      </div>
+  # For average excluding volunteers
+  non_vol_items = items.reject { |s| s.person&.volunteer? }
+  per_person_minutes_group_no_vol = non_vol_items.group_by(&:person_id).reject { |pid, _| pid.nil? }.values.map { |arr| arr.sum { |s| s.duration_in_minutes.to_i } }
+  group_avg_minutes_no_vol = per_person_minutes_group_no_vol.present? ? (per_person_minutes_group_no_vol.sum.to_f / per_person_minutes_group_no_vol.size).round : 0
+%>
+<div class="card-header d-flex justify-content-between align-items-center">
+  <strong><%= category %></strong>
+  <div class="d-flex align-items-center gap-2">
+    <span class="text-muted"><%= items.size %> sign-in<%= "s" unless items.size == 1 %></span>
+    <% if group_total_meals_served.positive? %>
+      <span class="badge text-bg-primary">Meals served: <%= group_total_meals_served %></span>
+    <% end %>
+    <span class="badge text-bg-dark" title="Includes volunteers">Avg time: <%= group_avg_minutes %> min</span>
+    <span class="badge text-bg-info" title="Excludes volunteers">Avg (no volunteers): <%= group_avg_minutes_no_vol %> min</span>
+  </div>
+</div>
+
 
       <div class="card-body">
-        <%# Group this group's sign-ins by day (newest day first). Ignore nil dates. %>
-        <% items.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? }.sort_by { |day, _| day }.reverse.each do |day, daily_items| %>
+        <% items.group_by { |s| s.arrived_at&.to_date }.sort_by { |day, _| day }.reverse.each do |day, daily_items| %>
           <% unique_people_count = daily_items.map(&:person_id).compact.uniq.size %>
           <% day_notes   = (notes_by_date[day] || []) %>
           <% notes_total = day_notes.sum { |n| n.amount.to_i } %>
-          <% meals_served = unique_people_count + notes_total %>
-          <%# Average time per guest for the day %>
+          <% meals_served = daily_items.select(&:meal_served?).size + notes_total %>
           <% per_person_minutes = daily_items.group_by(&:person_id).reject { |pid, _| pid.nil? }.values.map { |arr| arr.sum { |s| s.duration_in_minutes.to_i } } %>
           <% avg_minutes = per_person_minutes.present? ? (per_person_minutes.sum.to_f / per_person_minutes.size).round : 0 %>
 
@@ -139,41 +150,31 @@
                   <thead>
                     <tr>
                       <th>Person</th>
-                      <th>Arrived</th>
-                      <th>Left</th>
+                      <th class="text-end">Sign In</th>
+                      <th class="text-end">Sign Out</th>
                       <th class="text-end">Duration (min)</th>
                       <th class="text-end">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     <% daily_items.each do |sign_in| %>
-                      <% person = people_by_id[sign_in.person_id] || sign_in.person || Person.find_by(id: sign_in.person_id) %>
+                      <% person = sign_in.person %>
                       <tr id="<%= dom_id(sign_in) %>">
                         <td>
-                          <% if person.present? %>
+                          <% if person.archived? %>
                             <%= link_to person.name, reports_person_sign_ins_path(person) %>
-                            <% if person.archived? %>
-                              <span class="badge text-bg-secondary ms-1">Archived</span>
-                            <% end %>
+                            <span class="badge text-bg-secondary ms-1">Archived</span>
                           <% else %>
                             <%= link_to person.name, reports_person_sign_ins_path(person) %>
                           <% end %>
                         </td>
-                        <td>
-                          <% if sign_in.arrived_at.present? %>
-                            <%= sign_in.arrived_at.strftime("%d/%m/%Y %H:%M") %>
-                          <% else %>
-                            <span class="text-muted">—</span>
-                          <% end %>
+                        <td class="text-end">
+                          <%= sign_in.arrived_at&.in_time_zone&.strftime("%-I:%M %p") %>
                         </td>
-                        <td>
-                          <% if sign_in.left_at.present? %>
-                            <%= sign_in.left_at.strftime("%d/%m/%Y %H:%M") %>
-                          <% else %>
-                            <span class="badge text-bg-success">Still Present</span>
-                          <% end %>
+                        <td class="text-end">
+                          <%= sign_in.left_at ? sign_in.left_at.in_time_zone.strftime("%-I:%M %p") : "" %>
                         </td>
-                        <td class="text-end"><%= sign_in.duration_in_minutes || 0 %></td>
+                        <td class="text-end"><%= sign_in.duration_in_minutes.to_i %></td>
                         <td class="text-end d-flex justify-content-end gap-2">
                           <% if person.present? %>
                             <%= link_to "Edit", edit_guest_path(person), class: "btn btn-sm btn-outline-primary" %>
@@ -189,25 +190,6 @@
                   </tbody>
                 </table>
               </div>
-
-              <hr class="my-3">
-
-              <h6 class="mb-2">Notes for <%= day.strftime("%a %d %b %Y") %></h6>
-              <% if day_notes.any? %>
-                <ul class="list-unstyled mb-0">
-                  <% day_notes.each do |n| %>
-                    <li>
-                      <span class="text-muted"><%= n.created_at.strftime("%H:%M") %></span>
-                      — <%= n.info %>
-                      <% if n.amount.present? %>
-                        <span class="badge text-bg-secondary ms-1">+<%= n.amount %></span>
-                      <% end %>
-                    </li>
-                  <% end %>
-                </ul>
-              <% else %>
-                <p class="text-muted mb-0">No notes.</p>
-              <% end %>
             </div>
           </div>
         <% end %>

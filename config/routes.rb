@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
   resources :guests do
     member do
+      post :merge
       post :arrive
       patch :archive
       patch :unarchive

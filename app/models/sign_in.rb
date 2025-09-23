@@ -42,17 +42,53 @@ class SignIn < ApplicationRecord
     end
   end
 
-  # Optional: category mapping by day-of-week (used by reports)
+  def meal_served?
+    %w[Cafe Smart\ Lunch Bathurst\ Buddies Frypan\ Warriors].include?(category_label)
+  end
+
+  #category mapping by day-of-week (used by reports)
   def category_label
-    return nil unless arrived_at
-    case arrived_at.wday
-    when 1 then "Frypan Warriors"   # Monday
-    when 2 then "Bible Study"       # Tuesday
-    when 3 then "Smart Lunch"       # Wednesday
-    when 5 then "Bathurst Buddies"  # Friday
-    when 6, 0 then "Cafe"           # Saturday, Sunday
+    return "Misc/Unknown" unless arrived_at
+
+    t = arrived_at.in_time_zone # uses config.time_zone
+    wday = t.wday
+    time = t.strftime("%H:%M")
+
+    case wday
+    when 1
+      "Frypan Warriors"
+    when 2
+      if time < "12:30"
+        "Working Group"
+      elsif time < "15:00"
+        "Bible Study"
+      elsif time >= "16:00"
+        "Board Meetings"
+      else
+        "Misc/Unknown"
+      end
+    when 3
+      if time < "13:30"
+        "Smart Lunch"
+      else
+        "Activities"
+      end
+    when 5
+      if time < "12:00"
+        "Bathurst Buddies"
+      else
+        "Community Gardens"
+      end
+    when 6
+      if time < "12:30"
+        "Music BUSS"
+      else
+        "Cafe"
+      end
+    when 0
+      "Cafe"
     else
-      nil                           # Exclude Thursday
+      "Misc/Unknown"
     end
   end
 end
