@@ -1,4 +1,3 @@
-<!-- app/views/volunteers/index.html.erb -->
 <h1>Volunteers</h1>
 
 <!-- Add New Volunteer -->
@@ -11,22 +10,34 @@
   <% end %>
 </div>
 
-<!-- List Existing Volunteers -->
-<div id="volunteer_list">
-  <% @volunteers.each do |volunteer| %>
-    <div class="card mb-2 d-flex justify-content-between align-items-center p-2" id="<%= dom_id(volunteer) %>">
-      <span class="guest-name"><%= volunteer.name %></span>
-      <% if volunteer.present? %>
-        <span class="badge bg-success">Signed In</span>
-      <% else %>
-        <%= button_to "Sign In",
-                      arrive_volunteer_path(volunteer),
-                      method: :post,
-                      data: { turbo: true },
-                      class: "btn btn-success btn-sm" %>
-      <% end %>
-    </div>
-  <% end %>
+<!-- Responsive Search and Filtered List -->
+<div data-controller="filter">
+  <div class="mb-3">
+    <input type="text"
+           class="form-control"
+           placeholder="Search volunteers..."
+           data-action="keyup->filter#search"
+           data-filter-target="input">
+  </div>
+  <div data-filter-target="list">
+    <% @volunteers.each do |volunteer| %>
+      <div
+        class="card mb-2 d-flex justify-content-between align-items-center p-2"
+        id="<%= dom_id(volunteer) %>"
+        data-filter-target="item">
+        <span class="guest-name"><%= volunteer.name %></span>
+        <% if volunteer.present? %>
+          <span class="badge bg-success">Signed In</span>
+        <% else %>
+          <%= button_to "Sign In",
+                        arrive_volunteer_path(volunteer),
+                        method: :post,
+                        data: { turbo: true },
+                        class: "btn btn-success btn-sm" %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
 </div>
 
 <div id="back">

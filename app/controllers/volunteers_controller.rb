@@ -1,6 +1,13 @@
 class VolunteersController < ApplicationController
   def index
-    @volunteers = Person.where(volunteer: true)
+    if params[:search].present?
+      q = params[:search].strip.downcase
+      @volunteers = Person.where(volunteer: true)
+                          .where('LOWER(name) LIKE ?', "%#{q}%")
+                          .order(:name)
+    else
+      @volunteers = Person.where(volunteer: true).order(:name)
+    end
     @new_volunteer = Person.new(volunteer: true)
   end
 

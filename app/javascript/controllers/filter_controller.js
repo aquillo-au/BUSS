@@ -10,6 +10,7 @@ export default class extends Controller {
   }
 
   search(event) {
+    console.log("Search called", event);
     const query = (event?.target?.value ?? this.inputTarget?.value ?? "")
       .trim()
       .toLowerCase()

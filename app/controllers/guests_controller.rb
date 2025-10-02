@@ -17,12 +17,12 @@ class GuestsController < ApplicationController
 
 
   def create
-    # Try to find an archived person that matches the submitted info.
-    attrs = person_params
-    candidate = find_existing_candidate(attrs)
+  attrs = person_params
+  candidate = find_existing_candidate(attrs)
 
-    if candidate&.archived?
-      # Backfill any missing fields on the archived person with the newly submitted details.
+  if candidate
+    # If archived, unarchive and update details as before...
+    if candidate.archived?
       updates = {}
       updates[:email] = attrs[:email] if candidate.email.blank? && attrs[:email].present?
       updates[:phone] = attrs[:phone] if candidate.phone.blank? && attrs[:phone].present?
@@ -41,24 +41,35 @@ class GuestsController < ApplicationController
         format.html { redirect_to guests_path, notice: "#{@new_person.name} was unarchived and signed in." }
       end
       return
-    end
+    else
+      # Non-archived person: just sign them in!
+      @new_person = candidate
+      SignIn.create!(person: @new_person, arrived_at: Time.current)
+      @new_person.present!
 
-    # Default behavior: create a new person and sign in.
-    @new_person = Person.new(attrs)
-
-    respond_to do |format|
-      if @new_person.save
-        SignIn.create!(person: @new_person, arrived_at: Time.current)
-        @new_person.present!
-
+      respond_to do |format|
         format.turbo_stream
-        format.html { redirect_to guests_path, notice: "#{@new_person.name} added and signed in." }
-      else
-        format.turbo_stream { render turbo_stream: turbo_stream.replace("new_person_errors", partial: "new_person_errors") }
-        format.html { render :index, status: :unprocessable_entity }
+        format.html { redirect_to guests_path, notice: "#{@new_person.name} was already in the system. Signed in!" }
       end
+      return
     end
   end
+
+  # Default: create a new person
+  @new_person = Person.new(attrs)
+  respond_to do |format|
+    if @new_person.save
+      SignIn.create!(person: @new_person, arrived_at: Time.current)
+      @new_person.present!
+      format.turbo_stream
+      format.html { redirect_to guests_path, notice: "#{@new_person.name} added and signed in." }
+    else
+      format.turbo_stream { render turbo_stream: turbo_stream.replace("new_person_errors", partial: "new_person_errors") }
+      format.html { render :index, status: :unprocessable_entity }
+    end
+  end
+end
+
 
   def edit
   end

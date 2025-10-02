@@ -24,7 +24,7 @@
       <% @incidents.each do |incident| %>
         <tr id="<%= dom_id(incident) %>">
           <td><%= incident.title %></td>
-          <td><%= truncate(incident.description.to_s, length: 120) %></td>
+          <td><%= incident.description.to_s %></td>
           <td><%= l(incident.created_at, format: :short) %></td>
           <td class="text-end">
             <%= button_to "Delete",

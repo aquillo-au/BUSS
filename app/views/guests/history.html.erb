@@ -29,6 +29,9 @@
               <div class="d-flex align-items-center gap-2">
                 <strong>
                   <%= link_to person.name, reports_person_sign_ins_path(person), class: "text-decoration-none" %>
+                  <% if person.volunteer? %>
+                    (v)
+                  <% end %>
                 </strong>
                 <% if person.archived? %>
                   <span class="badge text-bg-secondary">Archived</span>
@@ -109,7 +112,7 @@
       <span class="badge text-bg-primary">Meals served: <%= group_total_meals_served %></span>
     <% end %>
     <span class="badge text-bg-dark" title="Includes volunteers">Avg time: <%= group_avg_minutes %> min</span>
-    <span class="badge text-bg-info" title="Excludes volunteers">Avg (no volunteers): <%= group_avg_minutes_no_vol %> min</span>
+    <span class="badge text-bg-info" title="Excludes volunteers">Avg (Without volunteers): <%= group_avg_minutes_no_vol %> min</span>
   </div>
 </div>
 
