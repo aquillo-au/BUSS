@@ -31,7 +31,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :sign_ins, only: [:destroy] do
+  resources :sign_ins, only: [:destroy, :edit, :update] do
     member do
       patch :leave
     end

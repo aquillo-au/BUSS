@@ -34,4 +34,24 @@ class SignInsController < ApplicationController
       format.html { redirect_to history_guests_path, notice: "Sign-in deleted." }
     end
   end
+
+  def edit
+    @sign_in = SignIn.find(params[:id])
+  end
+
+  def update
+    @sign_in = SignIn.find(params[:id])
+    if @sign_in.update(sign_in_params)
+      redirect_to history_guests_path, notice: "Sign-in updated."
+    else
+      render :edit
+    end
+  end
+
+  private
+
+  def sign_in_params
+    params.require(:sign_in).permit(:arrived_at, :left_at, :activity)
+  end
+
 end

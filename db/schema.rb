@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_02_222411) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_222415) do
   create_table "incidents", force: :cascade do |t|
     t.string "title"
     t.string "description"
@@ -45,6 +45,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_02_222411) do
     t.datetime "arrived_at"
     t.integer "person_id", null: false
     t.boolean "volunteer", default: false, null: false
+    t.boolean "activity", default: false, null: false
     t.index ["person_id"], name: "index_sign_ins_on_person_id"
   end
 

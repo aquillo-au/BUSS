@@ -48,6 +48,7 @@ class SignIn < ApplicationRecord
 
   #category mapping by day-of-week (used by reports)
   def category_label
+    return "Activities" if self.activity?
     return "Misc/Unknown" unless arrived_at
 
     t = arrived_at.in_time_zone # uses config.time_zone

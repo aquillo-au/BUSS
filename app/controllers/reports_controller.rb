@@ -106,8 +106,11 @@ class ReportsController < ApplicationController
     sign_ins_scope = sign_ins_scope.where(arrived_at: range) if range
     @sign_ins = sign_ins_scope
 
-    # Determine first sign-in per program for highlighting
-    grouped_by_program = @sign_ins.group_by { |s| s.category_label || "Uncategorized" }
+    @activity_sign_ins  = @sign_ins.select(&:activity?)
+    @program_sign_ins   = @sign_ins.reject(&:activity?)
+
+    grouped_by_program = @program_sign_ins.group_by { |s| s.category_label || "Uncategorized" }
+
     @first_sign_in_ids_by_program = {}
     @program_first_seen_at = {}
     grouped_by_program.each do |program, sis|

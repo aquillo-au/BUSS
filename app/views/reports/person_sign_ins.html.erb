@@ -21,7 +21,9 @@
 
 <div class="mb-3">
   <span class="badge text-bg-dark">Distinct programs joined: <%= @distinct_programs_count %></span>
+  <span class="badge text-bg-info">Activities attended: <%= @activity_sign_ins.size %></span>
 </div>
+
 
 <% if @program_stats.present? %>
   <div class="card mb-4">
@@ -87,6 +89,9 @@
               <%= row[:program] %>
               <% if row[:first_in_program] && row[:program] != "Uncategorized" %>
                 <span class="badge text-bg-info ms-1">First time</span>
+              <% end %>
+              <% if s.activity? %>
+                <span class="badge bg-warning ms-1">Activity</span>
               <% end %>
             </td>
             <td class="text-end"><%= row[:program_rolling_avg_minutes] %></td>

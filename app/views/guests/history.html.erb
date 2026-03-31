@@ -187,6 +187,7 @@
                                         method: :delete,
                                         data: { turbo_confirm: "Delete this sign-in#{ " for #{person.name}" if person }?" },
                                         class: "btn btn-sm btn-outline-danger" %>
+                          <%= link_to "Edit", edit_sign_in_path(sign_in), class: "btn btn-sm btn-outline-secondary" %>
                         </td>
                       </tr>
                     <% end %>
