@@ -11,5 +11,34 @@ Addiction is a disease that causes isolation and loneliness. Many of those who a
 “The opposite of addiction is not sobriety, it is connection” Johann Hari, leading addictions researcher.
 
 If you’d like to see more about what is happening, volunteer or donate you can find more information on our Facebook page or call us on 0455 328 966.</p>
-  <a href="/check_in" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px;">Check In Now</a>
+<a href="/check_in" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border-radius: 5px; text-decoration: none;">Check In Now</a>
+</div>
+
+  <% if @facebook_posts.any? %>
+    <% @facebook_posts.each do |post| %>
+      <div style="border: 1px solid #e0e0e0; padding: 20px; margin: 15px 0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <% if post.image_url %>
+          <img src="<%= post.image_url %>" alt="Post image" style="max-width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
+        <% end %>
+
+        <p style="font-size: 16px; line-height: 1.6; color: #333;">
+          <%= truncate(post.message, length: 300) %>
+        </p>
+
+        <small style="color: #999; font-size: 14px;">
+          <%= time_ago_in_words(post.published_at) %> ago
+        </small>
+
+        <br><br>
+
+        <% if post.post_url %>
+          <a href="<%= post.post_url %>" target="_blank" style="color: #1877F2; text-decoration: none; font-weight: bold;">
+            View on Facebook →
+          </a>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <p style="text-align: center; color: #999;">No posts found. Check back soon!</p>
+  <% end %>
 </div>
