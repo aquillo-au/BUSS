@@ -14,10 +14,13 @@ If you’d like to see more about what is happening, volunteer or donate you can
 <a href="/check_in" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border-radius: 5px; text-decoration: none;">Check In Now</a>
 </div>
 
-  <% if @facebook_posts.any? %>
+  <div class="facebook-feed" style="max-width: 900px; margin: 50px auto; padding: 20px;">
+  <h2 style="text-align: center; margin-bottom: 30px;">Latest Updates from our Facebook Page</h2>
+
+  <% if @facebook_posts&.any? %>
     <% @facebook_posts.each do |post| %>
       <div style="border: 1px solid #e0e0e0; padding: 20px; margin: 15px 0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <% if post.image_url %>
+        <% if post.image_url.present? %>
           <img src="<%= post.image_url %>" alt="Post image" style="max-width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
         <% end %>
 
@@ -31,7 +34,7 @@ If you’d like to see more about what is happening, volunteer or donate you can
 
         <br><br>
 
-        <% if post.post_url %>
+        <% if post.post_url.present? %>
           <a href="<%= post.post_url %>" target="_blank" style="color: #1877F2; text-decoration: none; font-weight: bold;">
             View on Facebook →
           </a>
@@ -39,6 +42,8 @@ If you’d like to see more about what is happening, volunteer or donate you can
       </div>
     <% end %>
   <% else %>
-    <p style="text-align: center; color: #999;">No posts found. Check back soon!</p>
+    <p style="text-align: center; color: #999; padding: 30px;">
+      No posts found yet. Check back soon for updates!
+    </p>
   <% end %>
 </div>
