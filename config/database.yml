@@ -23,23 +23,4 @@ test:
 
 # Store production database on Heroku PostgreSQL
 production:
-  primary:
-    <<: *default
-    adapter: postgresql
-    encoding: unicode
-    # Uses DATABASE_URL environment variable set by Heroku
-  cache:
-    <<: *default
-    adapter: postgresql
-    encoding: unicode
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *default
-    adapter: postgresql
-    encoding: unicode
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *default
-    adapter: postgresql
-    encoding: unicode
-    migrations_paths: db/cable_migrate
+  url: <%= ENV['DATABASE_URL'] %>
