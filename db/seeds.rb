@@ -7,15 +7,26 @@
   #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
   #     MovieGenre.find_or_create_by!(name: genre_name)
   #   end
-  Person.create!(
-    name: "Bob",
-    email: "bob@email.com",
-    phone: "0401",
-    present: false
-  )
-  Person.create!(
-    name: "Jill",
-    email: "jill@email.com",
-    phone: "0405",
-    present: false
-  )
+  Person.find_or_create_by!(name: "Bob") do |p|
+    p.email = "bob@email.com"
+    p.phone = "0401"
+    p.present = false
+  end
+  Person.find_or_create_by!(name: "Jill") do |p|
+    p.email = "jill@email.com"
+    p.phone = "0405"
+    p.present = false
+  end
+
+  # User accounts (development/test credentials - change in production)
+  User.find_or_create_by!(username: "buss") do |u|
+    u.password = "buss"
+    u.password_confirmation = "buss"
+    u.role = :basic
+  end
+
+  User.find_or_create_by!(username: "board") do |u|
+    u.password = "board"
+    u.password_confirmation = "board"
+    u.role = :admin
+  end

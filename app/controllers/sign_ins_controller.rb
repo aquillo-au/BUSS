@@ -1,4 +1,6 @@
 class SignInsController < ApplicationController
+  before_action :authenticate_user!
+
   def leave
     @sign_in = SignIn.find(params[:id])
 

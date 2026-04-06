@@ -1,0 +1,9 @@
+buss_user:
+  username: buss
+  password_digest: <%= BCrypt::Password.create("buss") %>
+  role: 0
+
+board_user:
+  username: board
+  password_digest: <%= BCrypt::Password.create("board") %>
+  role: 1
