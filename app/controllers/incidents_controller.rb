@@ -1,4 +1,5 @@
 class IncidentsController < ApplicationController
+  before_action :authenticate_user!
   before_action :set_incident, only: [ :destroy ]
 
   def index

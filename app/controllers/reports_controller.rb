@@ -1,4 +1,6 @@
 class ReportsController < ApplicationController
+  before_action :authenticate_user!
+
   # GET /reports/category_averages
   # Optional params:
   # - date: YYYY-MM-DD (shows only that date). If absent, shows last 14 days.

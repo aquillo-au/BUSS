@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_31_071108) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_07_000001) do
   create_table "facebook_posts", force: :cascade do |t|
     t.string "facebook_post_id"
     t.text "message"
@@ -57,6 +57,15 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_31_071108) do
     t.boolean "volunteer", default: false, null: false
     t.boolean "activity", default: false, null: false
     t.index ["person_id"], name: "index_sign_ins_on_person_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "username", null: false
+    t.string "password_digest", null: false
+    t.integer "role", null: false, default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
   add_foreign_key "sign_ins", "people"

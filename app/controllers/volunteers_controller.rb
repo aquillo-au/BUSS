@@ -1,4 +1,6 @@
 class VolunteersController < ApplicationController
+  before_action :authenticate_user!
+
   def index
     if params[:search].present?
       q = params[:search].strip.downcase

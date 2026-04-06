@@ -1,4 +1,6 @@
 class GuestsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [ :history ]
   before_action :auto_logout_overdue
   before_action :set_person, only: [ :edit, :update, :destroy, :arrive, :archive, :unarchive ]
 
