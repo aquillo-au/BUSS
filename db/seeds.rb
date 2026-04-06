@@ -18,7 +18,7 @@
     p.present = false
   end
 
-  # User accounts
+  # User accounts (development/test credentials - change in production)
   User.find_or_create_by!(username: "buss") do |u|
     u.password = "buss"
     u.password_confirmation = "buss"
