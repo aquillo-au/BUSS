@@ -53,5 +53,4 @@ class SignInsController < ApplicationController
   def sign_in_params
     params.require(:sign_in).permit(:arrived_at, :left_at, :activity)
   end
-
 end

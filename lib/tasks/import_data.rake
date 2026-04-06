@@ -1,12 +1,12 @@
 namespace :db do
   task import_from_sqlite: :environment do
-    require 'json'
+    require "json"
 
     [
-      { file: 'people.json', model: Person },
-      { file: 'incidents.json', model: Incident },
-      { file: 'notes.json', model: Note },
-      { file: 'sign_ins.json', model: SignIn }
+      { file: "people.json", model: Person },
+      { file: "incidents.json", model: Incident },
+      { file: "notes.json", model: Note },
+      { file: "sign_ins.json", model: SignIn }
     ].each do |item|
       next unless File.exist?(item[:file])
 

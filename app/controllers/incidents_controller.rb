@@ -1,5 +1,5 @@
 class IncidentsController < ApplicationController
-  before_action :set_incident, only: [:destroy]
+  before_action :set_incident, only: [ :destroy ]
 
   def index
     @incidents = Incident.order(created_at: :desc)

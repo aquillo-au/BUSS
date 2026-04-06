@@ -25,5 +25,4 @@ class Person < ApplicationRecord
   # Delete the other person
   other.destroy!
 end
-
 end

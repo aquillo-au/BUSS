@@ -1,11 +1,11 @@
 class GuestsController < ApplicationController
   before_action :auto_logout_overdue
-  before_action :set_person, only: [:edit, :update, :destroy, :arrive, :archive, :unarchive]
+  before_action :set_person, only: [ :edit, :update, :destroy, :arrive, :archive, :unarchive ]
 
   def index
     @people = Person.all
     @not_present = Person.where(present: false, archived: false).order(:name)
-    @present_sign_ins = SignIn.joins(:person).where(left_at: nil, people: { archived: false }).order('people.name')
+    @present_sign_ins = SignIn.joins(:person).where(left_at: nil, people: { archived: false }).order("people.name")
     @new_person = Person.new
     today = Time.zone.today
     @todays_unique_people_count =

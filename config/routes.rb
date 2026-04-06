@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   get "/check-in", to: "guests#index", as: :check_in
   get "/admin", to: "guests#history", as: :admin
 
-  resources :volunteers, only: [:index, :create] do
+  resources :volunteers, only: [ :index, :create ] do
     member do
       post :arrive
     end
@@ -24,7 +24,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :sign_ins, only: [:destroy, :edit, :update] do
+  resources :sign_ins, only: [ :destroy, :edit, :update ] do
     member do
       patch :leave
     end

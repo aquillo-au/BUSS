@@ -3,7 +3,7 @@ class VolunteersController < ApplicationController
     if params[:search].present?
       q = params[:search].strip.downcase
       @volunteers = Person.where(volunteer: true)
-                          .where('LOWER(name) LIKE ?', "%#{q}%")
+                          .where("LOWER(name) LIKE ?", "%#{q}%")
                           .order(:name)
     else
       @volunteers = Person.where(volunteer: true).order(:name)

@@ -131,7 +131,7 @@ class ReportsController < ApplicationController
           average_minutes: avg,
           first_seen_at: @program_first_seen_at[program]
         }
-      end.sort_by { |h| [h[:program] == "Uncategorized" ? 1 : 0, h[:program].to_s.downcase] }
+      end.sort_by { |h| [ h[:program] == "Uncategorized" ? 1 : 0, h[:program].to_s.downcase ] }
 
     # Tally of distinct non-uncategorized programs joined at least once
     @distinct_programs_count = @program_stats.count { |h| h[:program] != "Uncategorized" && h[:visits] > 0 }

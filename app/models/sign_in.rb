@@ -21,7 +21,7 @@ class SignIn < ApplicationRecord
 
   # Duration capped at cap_minutes (default 120) for any calculations
   def capped_duration_in_minutes(cap_minutes = CAP_MINUTES_DEFAULT)
-    [duration_in_minutes, cap_minutes].min
+    [ duration_in_minutes, cap_minutes ].min
   end
 
   # Automatically log out any active sign-ins older than 3 hours.
@@ -46,7 +46,7 @@ class SignIn < ApplicationRecord
     %w[Cafe Smart\ Lunch Bathurst\ Buddies Frypan\ Warriors].include?(category_label)
   end
 
-  #category mapping by day-of-week (used by reports)
+  # category mapping by day-of-week (used by reports)
   def category_label
     return "Activities" if self.activity?
     return "Misc/Unknown" unless arrived_at
