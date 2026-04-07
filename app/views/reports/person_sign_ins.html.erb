@@ -45,33 +45,83 @@
   </div>
 <% end %>
 
-<!-- Weekly Average Time Chart -->
-<% if @weekly_chart_data.size >= 2 %>
-  <div class="card mb-4">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <strong>Weekly Average Time at BUSS</strong>
-      <div class="d-flex gap-3 align-items-center">
-        <span class="badge text-bg-secondary">Total visits: <%= @total_visits %></span>
-        <span class="badge text-bg-info">Avg per visit: <%= @avg_minutes_per_visit %> min</span>
-        <% if @trend_direction %>
-          <% if @trend_direction == "up" %>
-            <span class="badge text-bg-success">&#8593; Increasing</span>
-          <% elsif @trend_direction == "down" %>
-            <span class="badge text-bg-danger">&#8595; Decreasing</span>
-          <% else %>
-            <span class="badge text-bg-secondary">&#8594; Stable</span>
-          <% end %>
-        <% end %>
+<% has_chart = @weekly_chart_data.size >= 2 %>
+<% has_stats = @program_stats.present? %>
+<% side_by_side = has_chart && has_stats %>
+
+<% if has_chart || has_stats %>
+  <div class="row g-4 mb-4">
+    <!-- Weekly Average Time Chart -->
+    <% if has_chart %>
+      <div class="col-12 <%= 'col-lg-6' if side_by_side %>">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <strong>Weekly Average Time at BUSS</strong>
+            <div class="d-flex gap-3 align-items-center">
+              <span class="badge text-bg-secondary">Total visits: <%= @total_visits %></span>
+              <span class="badge text-bg-info">Avg per visit: <%= @avg_minutes_per_visit %> min</span>
+              <% if @trend_direction %>
+                <% if @trend_direction == "up" %>
+                  <span class="badge text-bg-success">&#8593; Increasing</span>
+                <% elsif @trend_direction == "down" %>
+                  <span class="badge text-bg-danger">&#8595; Decreasing</span>
+                <% else %>
+                  <span class="badge text-bg-secondary">&#8594; Stable</span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          <div class="card-body">
+            <%= line_chart @weekly_chart_data,
+                           height: "250px",
+                           colors: ["#0d6efd"],
+                           library: { responsive: true, maintainAspectRatio: false,
+                                      plugins: { legend: { display: false } },
+                                      scales: { y: { title: { display: true, text: "Avg minutes" } } } } %>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="card-body">
-      <%= line_chart @weekly_chart_data,
-                     height: "250px",
-                     colors: ["#0d6efd"],
-                     library: { responsive: true, maintainAspectRatio: false,
-                                plugins: { legend: { display: false } },
-                                scales: { y: { title: { display: true, text: "Avg minutes" } } } } %>
-    </div>
+    <% end %>
+
+    <!-- Per-program averages -->
+    <% if has_stats %>
+      <div class="col-12 <%= 'col-lg-6' if side_by_side %>">
+        <div class="card h-100">
+          <div class="card-header">
+            <strong>Per-program averages</strong>
+            <span class="text-muted ms-2">(averages use the capped duration)</span>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm mb-0 align-middle">
+              <thead>
+                <tr>
+                  <th>Program</th>
+                  <th class="text-end">Visits</th>
+                  <th class="text-end">Average (min)</th>
+                  <th>First sign-in</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @program_stats.each do |ps| %>
+                  <tr>
+                    <td><%= ps[:program] %></td>
+                    <td class="text-end"><%= ps[:visits] %></td>
+                    <td class="text-end"><%= ps[:average_minutes] %></td>
+                    <td>
+                      <% if ps[:first_seen_at].present? %>
+                        <%= ps[:first_seen_at].strftime("%Y-%m-%d %H:%M") %>
+                      <% else %>
+                        —
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 <% end %>
 
@@ -84,43 +134,6 @@
   <span class="badge text-bg-info">Activities attended: <%= @activity_sign_ins.size %></span>
 </div>
 
-
-<% if @program_stats.present? %>
-  <div class="card mb-4">
-    <div class="card-header">
-      <strong>Per-program averages</strong>
-      <span class="text-muted ms-2">(averages use the capped duration)</span>
-    </div>
-    <div class="table-responsive">
-      <table class="table table-sm mb-0 align-middle">
-        <thead>
-          <tr>
-            <th>Program</th>
-            <th class="text-end">Visits</th>
-            <th class="text-end">Average (min)</th>
-            <th>First sign-in</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% @program_stats.each do |ps| %>
-            <tr>
-              <td><%= ps[:program] %></td>
-              <td class="text-end"><%= ps[:visits] %></td>
-              <td class="text-end"><%= ps[:average_minutes] %></td>
-              <td>
-                <% if ps[:first_seen_at].present? %>
-                  <%= ps[:first_seen_at].strftime("%Y-%m-%d %H:%M") %>
-                <% else %>
-                  —
-                <% end %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-<% end %>
 
 <% if @rows.blank? %>
   <div class="alert alert-info">No sign-ins found for the selected period.</div>
