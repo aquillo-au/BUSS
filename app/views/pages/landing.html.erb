@@ -53,4 +53,9 @@ If you'd like to see more about what is happening, volunteer or donate you can f
   <div style="margin-top: 20px;">
     <a href="<%= admin_path %>" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border-radius: 5px; text-decoration: none; margin-right: 10px;">Admin</a>
   </div>
+  <% if user_signed_in? %>
+    <div style="margin-top: 20px;">
+      <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-danger", style: "padding: 10px 20px; font-size: 16px; border-radius: 5px;" %>
+    </div>
+  <% end %>
 </div>
