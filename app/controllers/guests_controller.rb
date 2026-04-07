@@ -148,7 +148,8 @@ end
 
     @people = Person.all
     @period = period
-    @available_years = SignIn.where(is_haven_checkin: false).where.not(arrived_at: nil).map { |s| s.arrived_at.year }.uniq.sort.reverse
+    @available_years = SignIn.where(is_haven_checkin: false).where.not(arrived_at: nil)
+                             .pluck(:arrived_at).map(&:year).uniq.sort.reverse
 
     # Group sign-ins and notes by calendar day (local time)
     sign_ins_by_date = sign_ins.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? }
@@ -207,9 +208,10 @@ end
       attendees_data = {}
 
       grouped.sort.each do |period_start, period_items|
-        avg_data[period_start.strftime("%b %d")] =
+        label = use_monthly ? period_start.strftime("%b %Y") : period_start.strftime("%b %d")
+        avg_data[label] =
           (period_items.sum { |s| s.capped_duration_in_minutes } / period_items.size.to_f).round
-        attendees_data[period_start.strftime("%b %d")] =
+        attendees_data[label] =
           period_items.map(&:person_id).compact.uniq.size
       end
 

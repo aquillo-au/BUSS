@@ -96,7 +96,7 @@ class ReportsController < ApplicationController
     period = params[:period]
     @period = period
     @available_years = SignIn.where(person_id: @person.id).where.not(arrived_at: nil)
-                             .map { |s| s.arrived_at.year }.uniq.sort.reverse
+                             .pluck(:arrived_at).map(&:year).uniq.sort.reverse
 
     if period.present?
       case period
