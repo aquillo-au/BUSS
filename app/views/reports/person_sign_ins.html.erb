@@ -71,9 +71,10 @@
               <% end %>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body p-2">
             <%= line_chart @weekly_chart_data,
                            height: "250px",
+                           width: "100%",
                            colors: ["#0d6efd"],
                            library: { responsive: true, maintainAspectRatio: false,
                                       plugins: { legend: { display: false } },
