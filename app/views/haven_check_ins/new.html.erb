@@ -11,16 +11,6 @@
     <%= telephone_field_tag "haven_check_in[phone]", params.dig(:haven_check_in, :phone), class: "form-control", placeholder: "Phone number" %>
   </div>
 
-  <div class="mb-3">
-    <%= label_tag "haven_check_in[checked_in_at]", "Date in", class: "form-label" %>
-    <%= datetime_local_field_tag "haven_check_in[checked_in_at]", params.dig(:haven_check_in, :checked_in_at) || Time.current.strftime("%Y-%m-%dT%H:%M"), required: true, class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <%= label_tag "haven_check_in[checked_out_at]", "Date out (optional)", class: "form-label" %>
-    <%= datetime_local_field_tag "haven_check_in[checked_out_at]", params.dig(:haven_check_in, :checked_out_at), class: "form-control" %>
-  </div>
-
   <div class="mb-3 form-check">
     <%= check_box_tag "haven_check_in[has_car]", "1", params.dig(:haven_check_in, :has_car) == "1", class: "form-check-input", id: "haven_check_in_has_car" %>
     <%= label_tag "haven_check_in_has_car", "Has a car?", class: "form-check-label" %>
