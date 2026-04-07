@@ -133,6 +133,7 @@ end
       year = params[:year]&.to_i || Time.current.year - 1
       start_date = Date.new(year, 1, 1).beginning_of_day
       end_date = Date.new(year, 12, 31).end_of_day
+      @period_label = year.to_s
     else
       start_date = Time.current.beginning_of_year
       @period_label = "This Year"

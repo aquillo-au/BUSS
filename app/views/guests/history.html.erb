@@ -2,9 +2,9 @@
 
 <!-- Period Selection Buttons -->
 <div class="mb-4 d-flex gap-2 flex-wrap">
-  <%= link_to "This Year", history_guests_path(period: "year"), class: "btn #{'btn-primary' if params[:period].nil? || params[:period] == 'year'} #{'btn-outline-secondary' unless params[:period].nil? || params[:period] == 'year'}" %>
-  <%= link_to "Last 6 Months", history_guests_path(period: "6_months"), class: "btn #{'btn-primary' if params[:period] == '6_months'} #{'btn-outline-secondary' unless params[:period] == '6_months'}" %>
-  <%= link_to "Last 12 Months", history_guests_path(period: "12_months"), class: "btn #{'btn-primary' if params[:period] == '12_months'} #{'btn-outline-secondary' unless params[:period] == '12_months'}" %>
+<%= link_to "This Year", history_guests_path(period: "year"), class: "btn #{'btn-primary' if params[:period].nil? || params[:period] == 'year'} #{'btn-outline-secondary' unless params[:period].nil? || params[:period] == 'year'}", data: { turbo: false } %>
+<%= link_to "Last 6 Months", history_guests_path(period: "6_months"), class: "btn #{'btn-primary' if params[:period] == '6_months'} #{'btn-outline-secondary' unless params[:period] == '6_months'}", data: { turbo: false } %>
+<%= link_to "Last 12 Months", history_guests_path(period: "12_months"), class: "btn #{'btn-primary' if params[:period] == '12_months'} #{'btn-outline-secondary' unless params[:period] == '12_months'}", data: { turbo: false } %>
 
   <!-- Previous Years Dropdown -->
   <% if @available_years.present? %>
@@ -14,7 +14,7 @@
       </button>
       <ul class="dropdown-menu">
         <% @available_years.each do |year| %>
-          <li><%= link_to year, history_guests_path(period: "previous_year", year: year), class: "dropdown-item" %></li>
+          <li><%= link_to year, history_guests_path(period: "previous_year", year: year), class: "dropdown-item", data: { turbo: false } %></li>
         <% end %>
       </ul>
   </div>
@@ -230,6 +230,6 @@
 <% end %>
 
 <%= link_to "Group times", reports_category_averages_path, class: "btn btn-secondary mt-3" %>
-<%= link_to "Back to Guests", root_path, class: "btn btn-secondary mt-3" %>
+<%= link_to "Back to Guests", check_in_path, class: "btn btn-secondary mt-3" %>
 <%= link_to "View all incidents", incidents_path, class: "btn btn-danger mb-3" %>
 <%= link_to "Haven History", history_haven_check_ins_path, class: "btn btn-info mt-3" %>
