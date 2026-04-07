@@ -26,14 +26,17 @@ class HavenCheckInsController < ApplicationController
   end
 
   def leave
-    @sign_in = SignIn.find(params[:id])
+    @sign_in = SignIn.where(is_haven_checkin: true).find(params[:id])
 
-    unless @sign_in.left_at.present?
-      @sign_in.update!(left_at: Time.current)
+    if @sign_in.left_at.present?
+      redirect_to haven_check_ins_path, alert: "#{@sign_in.person.name} has already been signed out."
+      return
+    end
 
-      unless SignIn.exists?(person_id: @sign_in.person_id, left_at: nil)
-        @sign_in.person.update!(present: false)
-      end
+    @sign_in.update!(left_at: Time.current)
+
+    unless SignIn.exists?(person_id: @sign_in.person_id, left_at: nil)
+      @sign_in.person.update!(present: false)
     end
 
     redirect_to haven_check_ins_path, notice: "#{@sign_in.person.name} signed out of the Haven."
