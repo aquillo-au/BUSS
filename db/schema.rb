@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_000002) do
   create_table "facebook_posts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "facebook_post_id"
@@ -51,9 +51,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_000001) do
   create_table "sign_ins", force: :cascade do |t|
     t.boolean "activity", default: false, null: false
     t.datetime "arrived_at"
+    t.boolean "car", default: false, null: false
+    t.integer "children", default: 0, null: false
     t.datetime "created_at", null: false
+    t.boolean "is_haven_checkin", default: false, null: false
     t.datetime "left_at"
+    t.text "notes"
     t.integer "person_id", null: false
+    t.boolean "pet", default: false, null: false
+    t.string "phone_number"
     t.datetime "updated_at", null: false
     t.boolean "volunteer", default: false, null: false
     t.index ["person_id"], name: "index_sign_ins_on_person_id"

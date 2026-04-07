@@ -1,0 +1,51 @@
+<%# Haven Check-Ins Index %>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Haven Check-Ins</h1>
+    <%= link_to "New Haven Check-In", new_haven_check_in_path, class: "btn btn-success" %>
+  </div>
+
+  <% if @haven_check_ins.any? %>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Guest</th>
+          <th>Date In</th>
+          <th>Date Out</th>
+          <th>Phone</th>
+          <th>Car</th>
+          <th>Children</th>
+          <th>Pet</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @haven_check_ins.each do |check_in| %>
+          <tr>
+            <td><%= check_in.person.name %></td>
+            <td><%= check_in.arrived_at&.strftime("%d %b %Y %H:%M") %></td>
+            <td><%= check_in.left_at&.strftime("%d %b %Y %H:%M") || "Still present" %></td>
+            <td><%= check_in.phone_number.presence || "—" %></td>
+            <td><%= check_in.car? ? "Yes" : "No" %></td>
+            <td><%= check_in.children %></td>
+            <td><%= check_in.pet? ? "Yes" : "No" %></td>
+            <td><%= check_in.notes.presence || "—" %></td>
+            <td>
+              <% if check_in.left_at.nil? %>
+                <%= button_to "Sign Out",
+                              leave_haven_check_in_path(check_in),
+                              method: :patch,
+                              class: "btn btn-sm btn-danger",
+                              data: { turbo_confirm: "Sign out #{check_in.person.name}?" } %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="text-muted">No Haven check-ins yet.</p>
+  <% end %>
+</div>

@@ -35,6 +35,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :haven_check_ins, only: [ :index, :new, :create ] do
+    member do
+      patch :leave
+    end
+  end
+
   resources :incidents, only: [ :index, :new, :create, :destroy ]
   resources :notes, only: [ :new, :create ]
 

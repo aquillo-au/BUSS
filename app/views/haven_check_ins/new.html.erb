@@ -1,0 +1,64 @@
+<%# Haven Check-In Form %>
+
+<div class="container mt-4" style="max-width: 600px;">
+  <h1>Log into the Haven</h1>
+
+  <% if @sign_in.errors.any? %>
+    <div class="alert alert-danger">
+      <ul class="mb-0">
+        <% @sign_in.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @sign_in, url: haven_check_ins_path, local: true do |f| %>
+    <div class="mb-3">
+      <%= f.label :person_id, "Guest", class: "form-label" %>
+      <%= f.select :person_id,
+                   options_from_collection_for_select(@people, :id, :name, @sign_in.person_id),
+                   { prompt: "Select a guest..." },
+                   class: "form-select", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :arrived_at, "Date / Time In", class: "form-label" %>
+      <%= f.datetime_local_field :arrived_at, class: "form-control", required: true %>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :phone_number, "Phone Number (optional)", class: "form-label" %>
+      <%= f.telephone_field :phone_number, class: "form-control", placeholder: "e.g. 0400 000 000" %>
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <%= f.check_box :car, class: "form-check-input" %>
+        <%= f.label :car, "Has a car?", class: "form-check-label" %>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :children, "Number of Children", class: "form-label" %>
+      <%= f.number_field :children, class: "form-control", min: 0, value: (@sign_in.children || 0) %>
+    </div>
+
+    <div class="mb-3">
+      <div class="form-check">
+        <%= f.check_box :pet, class: "form-check-input" %>
+        <%= f.label :pet, "Has a pet?", class: "form-check-label" %>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <%= f.label :notes, "Notes", class: "form-label" %>
+      <%= f.text_area :notes, class: "form-control", rows: 4, placeholder: "Any additional information..." %>
+    </div>
+
+    <div class="d-flex gap-2">
+      <%= f.submit "Check In to Haven", class: "btn btn-success" %>
+      <%= link_to "Cancel", root_path, class: "btn btn-secondary" %>
+    </div>
+  <% end %>
+</div>
