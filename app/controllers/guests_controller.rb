@@ -177,6 +177,45 @@ end
         meals_served: meals_served
       }
     end
+
+    # Build chart data for program trends
+    chart_category_order = [
+      "Frypan Warriors", "Working Group", "Bible Study", "Board Meetings",
+      "Smart Lunch", "Activities", "Bathurst Buddies", "Community Gardens",
+      "Music BUSS", "Cafe", "Misc/Unknown"
+    ]
+
+    # Use monthly grouping for longer periods, weekly for shorter ones
+    use_monthly = period == "12_months" || period == "previous_year"
+
+    by_program = sign_ins.to_a.reject { |s| s.arrived_at.nil? }.group_by(&:category_label)
+
+    @avg_time_chart_data = []
+    @attendees_chart_data = []
+
+    chart_category_order.each do |cat|
+      items = by_program[cat]
+      next if items.blank?
+
+      if use_monthly
+        grouped = items.group_by { |s| s.arrived_at.beginning_of_month.to_date }
+      else
+        grouped = items.group_by { |s| s.arrived_at.beginning_of_week(:monday).to_date }
+      end
+
+      avg_data = {}
+      attendees_data = {}
+
+      grouped.sort.each do |period_start, period_items|
+        avg_data[period_start.strftime("%b %d")] =
+          (period_items.sum { |s| s.capped_duration_in_minutes } / period_items.size.to_f).round
+        attendees_data[period_start.strftime("%b %d")] =
+          period_items.map(&:person_id).compact.uniq.size
+      end
+
+      @avg_time_chart_data << { name: cat, data: avg_data }
+      @attendees_chart_data << { name: cat, data: attendees_data }
+    end
   end
 
   def archive
