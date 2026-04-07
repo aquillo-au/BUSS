@@ -37,6 +37,7 @@ Rails.application.routes.draw do
 
   resources :incidents, only: [ :index, :new, :create, :destroy ]
   resources :notes, only: [ :new, :create ]
+  resources :haven_check_ins, only: [ :new, :create ]
 
   get "reports/category_averages", to: "reports#category_averages", as: :reports_category_averages
   get "reports/people/:id/sign_ins", to: "reports#person_sign_ins", as: :reports_person_sign_ins
