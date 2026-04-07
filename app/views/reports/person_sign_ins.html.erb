@@ -1,5 +1,35 @@
 <h1>Sign-ins for <%= @person.name %></h1>
 
+<!-- Period Selection Buttons -->
+<div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
+  <span class="text-muted me-1">Period:</span>
+  <%= link_to "This Year", reports_person_sign_ins_path(@person, period: "year"),
+        class: "btn btn-sm #{ @period.nil? || @period == 'year' ? 'btn-primary' : 'btn-outline-secondary' }",
+        data: { turbo: false } %>
+  <%= link_to "Last 6 Months", reports_person_sign_ins_path(@person, period: "6_months"),
+        class: "btn btn-sm #{ @period == '6_months' ? 'btn-primary' : 'btn-outline-secondary' }",
+        data: { turbo: false } %>
+  <%= link_to "Last 12 Months", reports_person_sign_ins_path(@person, period: "12_months"),
+        class: "btn btn-sm #{ @period == '12_months' ? 'btn-primary' : 'btn-outline-secondary' }",
+        data: { turbo: false } %>
+  <% if @available_years.present? %>
+    <div class="btn-group">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Previous Years
+      </button>
+      <ul class="dropdown-menu">
+        <% @available_years.each do |yr| %>
+          <li>
+            <%= link_to yr, reports_person_sign_ins_path(@person, period: "previous_year", year: yr),
+                  class: "dropdown-item #{ @period == 'previous_year' && params[:year].to_s == yr.to_s ? 'active' : '' }",
+                  data: { turbo: false } %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
+
 <%= form_with url: reports_person_sign_ins_path(@person), method: :get, local: true, class: "mb-3 row g-2 align-items-end" do |f| %>
   <div class="col-auto">
     <%= f.label :from, "From" %>
@@ -12,6 +42,36 @@
   <div class="col-auto">
     <%= f.submit "Filter", class: "btn btn-primary" %>
     <%= link_to "Clear", reports_person_sign_ins_path(@person), class: "btn btn-secondary ms-1" %>
+  </div>
+<% end %>
+
+<!-- Weekly Average Time Chart -->
+<% if @weekly_chart_data.size >= 2 %>
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <strong>Weekly Average Time at BUSS</strong>
+      <div class="d-flex gap-3 align-items-center">
+        <span class="badge text-bg-secondary">Total visits: <%= @total_visits %></span>
+        <span class="badge text-bg-info">Avg per visit: <%= @avg_minutes_per_visit %> min</span>
+        <% if @trend_direction %>
+          <% if @trend_direction == "up" %>
+            <span class="badge text-bg-success">&#8593; Increasing</span>
+          <% elsif @trend_direction == "down" %>
+            <span class="badge text-bg-danger">&#8595; Decreasing</span>
+          <% else %>
+            <span class="badge text-bg-secondary">&#8594; Stable</span>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+    <div class="card-body">
+      <%= line_chart @weekly_chart_data,
+                     height: "250px",
+                     colors: ["#0d6efd"],
+                     library: { responsive: true, maintainAspectRatio: false,
+                                plugins: { legend: { display: false } },
+                                scales: { y: { title: { display: true, text: "Avg minutes" } } } } %>
+    </div>
   </div>
 <% end %>
 

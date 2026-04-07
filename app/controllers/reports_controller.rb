@@ -77,8 +77,10 @@ class ReportsController < ApplicationController
 
   # GET /reports/people/:id/sign_ins
   # Optional params:
-  # - from: YYYY-MM-DD
-  # - to:   YYYY-MM-DD
+  # - period: year|6_months|12_months|previous_year (period filter buttons)
+  # - year: YYYY (for previous_year period)
+  # - from: YYYY-MM-DD (custom date range)
+  # - to:   YYYY-MM-DD (custom date range)
   #
   # Shows each sign-in for a person with:
   # - actual duration,
@@ -90,19 +92,54 @@ class ReportsController < ApplicationController
   def person_sign_ins
     @person = Person.find(params[:id])
 
-    from_date = parse_date(params[:from])
-    to_date   = parse_date(params[:to])
+    # Period filter (same as history page)
+    period = params[:period]
+    @period = period
+    @available_years = SignIn.where(person_id: @person.id).where.not(arrived_at: nil)
+                             .pluck(:arrived_at).map(&:year).uniq.sort.reverse
 
-    range =
-      if from_date && to_date
-        from_date.beginning_of_day..to_date.end_of_day
-      elsif from_date
-        from_date.beginning_of_day..Time.current.end_of_day
-      elsif to_date
-        Time.at(0)..to_date.end_of_day
+    if period.present?
+      case period
+      when "year"
+        start_date = Time.current.beginning_of_year
+        end_date   = nil
+        @period_label = "This Year"
+      when "6_months"
+        start_date = 6.months.ago
+        end_date   = nil
+        @period_label = "Last 6 Months"
+      when "12_months"
+        start_date = 12.months.ago
+        end_date   = nil
+        @period_label = "Last 12 Months"
+      when "previous_year"
+        year = params[:year]&.to_i || Time.current.year - 1
+        start_date = Date.new(year, 1, 1).beginning_of_day
+        end_date   = Date.new(year, 12, 31).end_of_day
+        @period_label = year.to_s
       else
-        nil
+        start_date = Time.current.beginning_of_year
+        end_date   = nil
+        @period_label = "This Year"
       end
+
+      range = end_date ? start_date..end_date : start_date..Time.current.end_of_day
+    else
+      # Fall back to custom from/to date range
+      from_date = parse_date(params[:from])
+      to_date   = parse_date(params[:to])
+
+      range =
+        if from_date && to_date
+          from_date.beginning_of_day..to_date.end_of_day
+        elsif from_date
+          from_date.beginning_of_day..Time.current.end_of_day
+        elsif to_date
+          Time.at(0)..to_date.end_of_day
+        else
+          nil
+        end
+    end
 
     sign_ins_scope = SignIn.where(person_id: @person.id).order(:arrived_at)
     sign_ins_scope = sign_ins_scope.where(arrived_at: range) if range
@@ -169,6 +206,34 @@ class ReportsController < ApplicationController
         first_in_program: (@first_sign_in_ids_by_program[program] == s.id)
       }
     end
+
+    # Weekly average time chart data (only non-activity sign-ins with arrived_at)
+    valid_sign_ins = @sign_ins.to_a.reject { |s| s.arrived_at.nil? }
+    weeks = valid_sign_ins.group_by { |s| s.arrived_at.beginning_of_week(:monday).to_date }
+    @weekly_chart_data = weeks.sort.map do |week_start, week_sis|
+      avg = (week_sis.sum { |s| s.capped_duration_in_minutes } / week_sis.size.to_f).round
+      [ week_start.strftime("%b %d"), avg ]
+    end.to_h
+
+    # Trend calculation (requires at least 4 data points)
+    if @weekly_chart_data.size >= 4
+      values = @weekly_chart_data.values
+      half = values.size / 2
+      first_half_avg = values.first(half).sum.to_f / half
+      second_half_avg = values.last(half).sum.to_f / half
+      if second_half_avg > first_half_avg * 1.05
+        @trend_direction = "up"
+      elsif second_half_avg < first_half_avg * 0.95
+        @trend_direction = "down"
+      else
+        @trend_direction = "stable"
+      end
+    end
+
+    # Summary stats
+    all_durations = valid_sign_ins.map(&:capped_duration_in_minutes)
+    @total_visits = all_durations.size
+    @avg_minutes_per_visit = all_durations.present? ? (all_durations.sum.to_f / all_durations.size).round : 0
   end
 
   private
