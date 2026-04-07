@@ -1,5 +1,12 @@
 class HavenCheckInsController < ApplicationController
   before_action :authenticate_user!
+  before_action :authenticate_admin!, only: [ :history ]
+
+  def history
+    @sign_ins = SignIn.where(is_haven_checkin: true)
+                      .includes(:person)
+                      .order(checked_in_at: :desc)
+  end
 
   def index
     @sign_ins = SignIn.where(is_haven_checkin: true, checked_out_at: nil)

@@ -1,0 +1,49 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Haven Login History</h1>
+  <div class="d-flex gap-2">
+    <%= link_to "Back to Admin", admin_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<% if @sign_ins.any? %>
+  <div class="table-responsive">
+    <table class="table table-striped table-sm align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Guest Name</th>
+          <th>Phone</th>
+          <th>Check-in</th>
+          <th>Check-out</th>
+          <th>Days Stayed</th>
+          <th>Car</th>
+          <th>Children</th>
+          <th>Pet</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @sign_ins.each do |sign_in| %>
+          <tr>
+            <td><%= sign_in.person&.name %></td>
+            <td><%= sign_in.person&.phone.presence || "—" %></td>
+            <td><%= sign_in.checked_in_at&.strftime("%d %b %Y %H:%M") %></td>
+            <td><%= sign_in.checked_out_at&.strftime("%d %b %Y %H:%M") || "—" %></td>
+            <td>
+              <% if sign_in.checked_in_at && sign_in.checked_out_at %>
+                <%= (sign_in.checked_out_at.to_date - sign_in.checked_in_at.to_date).to_i %>
+              <% else %>
+                —
+              <% end %>
+            </td>
+            <td><%= sign_in.has_car? ? "Yes" : "No" %></td>
+            <td><%= sign_in.num_children || 0 %></td>
+            <td><%= sign_in.has_pet? ? "Yes" : "No" %></td>
+            <td><%= sign_in.haven_notes.presence || "—" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <p class="text-muted">No Haven check-ins recorded yet.</p>
+<% end %>
