@@ -182,45 +182,74 @@ end
       }
     end
 
-  # Build chart data for program trends (without running average)
-    chart_category_order = [
-      "Frypan Warriors", "Working Group", "Bible Study", "Board Meetings",
-      "Smart Lunch", "Activities", "Bathurst Buddies", "Community Gardens",
-      "Music BUSS", "Cafe", "Misc/Unknown"
-    ]
+  # Build chart data for program trends
+  chart_category_order = [
+    "Frypan Warriors", "Working Group", "Bible Study", "Board Meetings",
+    "Smart Lunch", "Activities", "Bathurst Buddies", "Community Gardens",
+    "Music BUSS", "Cafe", "Misc/Unknown"
+  ]
 
-    # Use monthly grouping for longer periods, weekly for shorter ones
-    use_monthly = period == "12_months" || period == "previous_year" || period == "all_time"
+  # Use monthly grouping for longer periods, weekly for shorter ones
+  use_monthly = period == "12_months" || period == "previous_year" || period == "all_time"
 
-    by_program = sign_ins.to_a.reject { |s| s.arrived_at.nil? }.group_by(&:category_label)
+  by_program = sign_ins.to_a.reject { |s| s.arrived_at.nil? }.group_by(&:category_label)
 
-    @avg_time_chart_data = []
-    @attendees_chart_data = []
+  @avg_time_chart_data = []
+  @attendees_chart_data = []
 
-    chart_category_order.each do |cat|
-      items = by_program[cat]
-      next if items.blank?
+  # Calculate overall average time across all programs
+  all_durations = []
+  all_attendee_periods = {}
 
-      if use_monthly
-        grouped = items.group_by { |s| s.arrived_at.beginning_of_month.to_date }
-      else
-        grouped = items.group_by { |s| s.arrived_at.beginning_of_week(:monday).to_date }
-      end
+  chart_category_order.each do |cat|
+    items = by_program[cat]
+    next if items.blank?
 
-      avg_data = {}
-      attendees_data = {}
-
-      grouped.sort.each do |period_start, period_items|
-        label = use_monthly ? period_start.strftime("%b %Y") : period_start.strftime("%b %d")
-        avg_data[label] =
-          (period_items.sum { |s| s.capped_duration_in_minutes } / period_items.size.to_f).round
-        attendees_data[label] =
-          period_items.map(&:person_id).compact.uniq.size
-      end
-
-      @avg_time_chart_data << { name: cat, data: avg_data }
-      @attendees_chart_data << { name: cat, data: attendees_data }
+    if use_monthly
+      grouped = items.group_by { |s| s.arrived_at.beginning_of_month.to_date }
+    else
+      grouped = items.group_by { |s| s.arrived_at.beginning_of_week(:monday).to_date }
     end
+
+    avg_data = {}
+    attendees_data = {}
+
+    grouped.sort.each do |period_start, period_items|
+      label = use_monthly ? period_start.strftime("%b %Y") : period_start.strftime("%b %d")
+
+      period_avg = (period_items.sum { |s| s.capped_duration_in_minutes } / period_items.size.to_f).round
+      avg_data[label] = period_avg
+
+      # Track for overall average
+      all_durations.concat(period_items.map { |s| s.capped_duration_in_minutes })
+      all_attendee_periods[label] ||= 0
+      all_attendee_periods[label] += period_items.map(&:person_id).compact.uniq.size
+
+      attendees_data[label] = period_items.map(&:person_id).compact.uniq.size
+    end
+
+    @avg_time_chart_data << { name: cat, data: avg_data }
+    @attendees_chart_data << { name: cat, data: attendees_data }
+  end
+
+  # Calculate overall average line
+  overall_avg = all_durations.any? ? (all_durations.sum.to_f / all_durations.size).round : 0
+  overall_avg_data = {}
+
+  # Build overall average data for each period
+  if use_monthly
+    sign_ins.to_a.reject { |s| s.arrived_at.nil? }.group_by { |s| s.arrived_at.beginning_of_month.to_date }.sort.each do |period_start, period_items|
+      label = period_start.strftime("%b %Y")
+      overall_avg_data[label] = (period_items.sum { |s| s.capped_duration_in_minutes } / period_items.size.to_f).round
+    end
+  else
+    sign_ins.to_a.reject { |s| s.arrived_at.nil? }.group_by { |s| s.arrived_at.beginning_of_week(:monday).to_date }.sort.each do |period_start, period_items|
+      label = period_start.strftime("%b %d")
+      overall_avg_data[label] = (period_items.sum { |s| s.capped_duration_in_minutes } / period_items.size.to_f).round
+    end
+  end
+
+  @avg_time_chart_data << { name: "Overall Average", data: overall_avg_data }
   end
 
   def archive
