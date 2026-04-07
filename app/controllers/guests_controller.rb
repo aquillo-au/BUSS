@@ -116,11 +116,41 @@ end
   end
 
   def history
-    # All sign-ins with associated people
-    sign_ins = SignIn.includes(:person).order(arrived_at: :desc)
-    @people   = Person.all
+    # Determine time period from params (default: current year)
+    period = params[:period] || "year"
+
+    case period
+    when "year"
+      start_date = Time.current.beginning_of_year
+      @period_label = "This Year"
+    when "6_months"
+      start_date = 6.months.ago
+      @period_label = "Last 6 Months"
+    when "12_months"
+      start_date = 12.months.ago
+      @period_label = "Last 12 Months"
+    when "previous_year"
+      year = params[:year]&.to_i || Time.current.year - 1
+      start_date = Date.new(year, 1, 1).beginning_of_day
+      end_date = Date.new(year, 12, 31).end_of_day
+    else
+      start_date = Time.current.beginning_of_year
+      @period_label = "This Year"
+    end
+
+    # Build the query
+    if period == "previous_year"
+      sign_ins = SignIn.includes(:person).where(is_haven_checkin: false).where(arrived_at: start_date..end_date).order(arrived_at: :desc)
+    else
+      sign_ins = SignIn.includes(:person).where(is_haven_checkin: false).where("arrived_at >= ?", start_date).order(arrived_at: :desc)
+    end
+
+    @people = Person.all
+    @period = period
+    @available_years = SignIn.where(is_haven_checkin: false).where.not(arrived_at: nil).map { |s| s.arrived_at.year }.uniq.sort.reverse
+
     # Group sign-ins and notes by calendar day (local time)
-    sign_ins_by_date = sign_ins.group_by { |s| s.arrived_at.to_date }
+    sign_ins_by_date = sign_ins.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? }
     notes = Note.order(created_at: :desc)
     notes_by_date = notes.group_by { |n| n.created_at.to_date }
 

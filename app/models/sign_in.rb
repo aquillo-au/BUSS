@@ -55,6 +55,14 @@ class SignIn < ApplicationRecord
     wday = t.wday
     time = t.strftime("%H:%M")
 
+    # Check if after 1/1/2026
+    if t.to_date >= Date.new(2026, 1, 1)
+      # Thursday (wday 4) between 12:00 and 14:00 (2pm)
+      if wday == 4 && time >= "12:00" && time < "14:00"
+        return "Bathurst Buddies"
+      end
+    end
+
     case wday
     when 1
       "Frypan Warriors"
@@ -73,6 +81,13 @@ class SignIn < ApplicationRecord
         "Smart Lunch"
       else
         "Activities"
+      end
+    when 4
+      # Thursday but not in Bathurst Buddies time window (or before 1/1/2026)
+      if time < "12:00"
+        "Bathurst Buddies"
+      else
+        "Community Gardens"
       end
     when 5
       if time < "12:00"

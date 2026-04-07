@@ -1,14 +1,41 @@
 <h1>History</h1>
 
+<!-- Period Selection Buttons -->
+<div class="mb-4 d-flex gap-2 flex-wrap">
+  <%= link_to "This Year", history_guests_path(period: "year"), class: "btn #{'btn-primary' if params[:period].nil? || params[:period] == 'year'} #{'btn-outline-secondary' unless params[:period].nil? || params[:period] == 'year'}" %>
+  <%= link_to "Last 6 Months", history_guests_path(period: "6_months"), class: "btn #{'btn-primary' if params[:period] == '6_months'} #{'btn-outline-secondary' unless params[:period] == '6_months'}" %>
+  <%= link_to "Last 12 Months", history_guests_path(period: "12_months"), class: "btn #{'btn-primary' if params[:period] == '12_months'} #{'btn-outline-secondary' unless params[:period] == '12_months'}" %>
+
+  <!-- Previous Years Dropdown -->
+  <% if @available_years.present? %>
+    <div class="btn-group">
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Previous Years
+      </button>
+      <ul class="dropdown-menu">
+        <% @available_years.each do |year| %>
+          <li><%= link_to year, history_guests_path(period: "previous_year", year: year), class: "dropdown-item" %></li>
+        <% end %>
+      </ul>
+  </div>
+<% end %>
+</div>
+
 <%
-  year_start = Time.current.beginning_of_year
-  relevant_sign_ins = SignIn.includes(:person).where("arrived_at >= ?", year_start)
+  # Calculate stats for the selected period
+  if @day_summaries.present?
+    period_start = @day_summaries.map { |s| s[:day] }.min
+    relevant_sign_ins = SignIn.includes(:person).where(is_haven_checkin: false).where("arrived_at >= ?", period_start.beginning_of_day)
+  else
+    relevant_sign_ins = SignIn.none
+  end
   total_signins = relevant_sign_ins.count
   total_individuals = relevant_sign_ins.map(&:person_id).uniq.compact.size
   total_meals = relevant_sign_ins.select(&:meal_served?).size
 %>
+
 <div class="alert alert-info mb-4">
-  <strong>The Year so far:</strong>
+  <strong><%= @period_label %>:</strong>
   <span class="me-3">Total Sign-ins: <%= total_signins %></span>
   <span class="me-3">Total Individuals: <%= total_individuals %></span>
   <span>Total Meals Served: <%= total_meals %></span>
@@ -66,7 +93,7 @@
 <% notes_by_date = Note.all.group_by { |n| n.created_at&.to_date } %>
 
 <%
-  grouped = SignIn.includes(:person).order(arrived_at: :desc).group_by(&:category_label)
+  grouped = SignIn.includes(:person).where(is_haven_checkin: false).order(arrived_at: :desc).group_by(&:category_label)
   category_order = [
     "Frypan Warriors",
     "Working Group",
@@ -118,7 +145,7 @@
 
 
       <div class="card-body">
-        <% items.group_by { |s| s.arrived_at&.to_date }.sort_by { |day, _| day }.reverse.each do |day, daily_items| %>
+        <% items.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? }.sort_by { |day, _| day }.reverse.each do |day, daily_items| %>
           <% unique_people_count = daily_items.map(&:person_id).compact.uniq.size %>
           <% day_notes   = (notes_by_date[day] || []) %>
           <% notes_total = day_notes.sum { |n| n.amount.to_i } %>
