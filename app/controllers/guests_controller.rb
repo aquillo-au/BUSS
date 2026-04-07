@@ -129,6 +129,9 @@ end
     when "12_months"
       start_date = 12.months.ago
       @period_label = "Last 12 Months"
+    when "all_time"
+      start_date = SignIn.where(is_haven_checkin: false).minimum(:arrived_at) || 100.years.ago
+      @period_label = "All Time"
     when "previous_year"
       year = params[:year]&.to_i || Time.current.year - 1
       start_date = Date.new(year, 1, 1).beginning_of_day
@@ -149,7 +152,7 @@ end
     @people = Person.all
     @period = period
     @available_years = SignIn.where(is_haven_checkin: false).where.not(arrived_at: nil)
-                             .pluck(:arrived_at).map(&:year).uniq.sort.reverse
+                            .pluck(:arrived_at).map(&:year).uniq.sort.reverse
 
     # Group sign-ins and notes by calendar day (local time)
     sign_ins_by_date = sign_ins.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? }
@@ -179,7 +182,7 @@ end
       }
     end
 
-    # Build chart data for program trends
+  # Build chart data for program trends (without running average)
     chart_category_order = [
       "Frypan Warriors", "Working Group", "Bible Study", "Board Meetings",
       "Smart Lunch", "Activities", "Bathurst Buddies", "Community Gardens",
@@ -187,7 +190,7 @@ end
     ]
 
     # Use monthly grouping for longer periods, weekly for shorter ones
-    use_monthly = period == "12_months" || period == "previous_year"
+    use_monthly = period == "12_months" || period == "previous_year" || period == "all_time"
 
     by_program = sign_ins.to_a.reject { |s| s.arrived_at.nil? }.group_by(&:category_label)
 
