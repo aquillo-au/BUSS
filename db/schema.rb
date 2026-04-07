@@ -10,61 +10,61 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_07_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_000001) do
   create_table "facebook_posts", force: :cascade do |t|
+    t.datetime "created_at", null: false
     t.string "facebook_post_id"
-    t.text "message"
     t.string "image_url"
+    t.text "message"
     t.string "post_url"
     t.datetime "published_at"
-    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "incidents", force: :cascade do |t|
-    t.string "title"
-    t.string "description"
     t.datetime "created_at", null: false
+    t.string "description"
+    t.string "title"
     t.datetime "updated_at", null: false
   end
 
   create_table "notes", force: :cascade do |t|
-    t.integer "info"
     t.integer "amount"
     t.datetime "created_at", null: false
+    t.integer "info"
     t.datetime "updated_at", null: false
   end
 
   create_table "people", force: :cascade do |t|
-    t.string "name", null: false
-    t.string "email"
-    t.string "phone"
-    t.boolean "volunteer", default: false
-    t.boolean "present", default: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.boolean "archived", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "name", null: false
+    t.string "phone"
+    t.boolean "present", default: false
+    t.datetime "updated_at", null: false
+    t.boolean "volunteer", default: false
     t.index ["archived"], name: "index_people_on_archived"
     t.index ["name"], name: "index_people_on_name", unique: true
   end
 
   create_table "sign_ins", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.datetime "left_at"
-    t.datetime "arrived_at"
-    t.integer "person_id", null: false
-    t.boolean "volunteer", default: false, null: false
     t.boolean "activity", default: false, null: false
+    t.datetime "arrived_at"
+    t.datetime "created_at", null: false
+    t.datetime "left_at"
+    t.integer "person_id", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "volunteer", default: false, null: false
     t.index ["person_id"], name: "index_sign_ins_on_person_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "username", null: false
-    t.string "password_digest", null: false
-    t.integer "role", null: false, default: 0
     t.datetime "created_at", null: false
+    t.string "password_digest", null: false
+    t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.string "username", null: false
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
