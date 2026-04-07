@@ -41,6 +41,9 @@ Rails.application.routes.draw do
     member do
       patch :sign_out
     end
+    collection do
+      get :history
+    end
   end
 
   get "reports/category_averages", to: "reports#category_averages", as: :reports_category_averages
