@@ -49,7 +49,8 @@ class HavenCheckInsController < ApplicationController
     person ||= Person.where(phone: phone).first if phone.present?
 
     if person
-      person.update!(archived: false, phone: phone) if phone.present? && person.phone.blank?
+      person.update!(archived: false) if person.archived?
+      person.update!(phone: phone) if phone.present? && person.phone.blank?
       person
     else
       Person.create!(name: name, phone: phone.presence)
