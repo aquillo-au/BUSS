@@ -30,7 +30,7 @@ class SignIn < ApplicationRecord
   def self.auto_logout_overdue!(now = Time.current)
     cutoff = now - MAX_SESSION_MINUTES.minutes
 
-    where(left_at: nil).where("arrived_at <= ?", cutoff).find_each do |s|
+    where(left_at: nil, is_haven_checkin: false).where("arrived_at <= ?", cutoff).find_each do |s|
       capped_left_at = s.arrived_at + MAX_SESSION_MINUTES.minutes
       # Update sign-in end time
       s.update_columns(left_at: capped_left_at, updated_at: Time.current)

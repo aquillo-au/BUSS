@@ -1,0 +1,46 @@
+<h1>Log into the Haven</h1>
+
+<%= form_with url: haven_check_ins_path, method: :post, local: true do |f| %>
+  <div class="mb-3">
+    <%= label_tag "haven_check_in[name]", "Name", class: "form-label" %>
+    <%= text_field_tag "haven_check_in[name]", params.dig(:haven_check_in, :name), required: true, class: "form-control", placeholder: "Full name" %>
+  </div>
+
+  <div class="mb-3">
+    <%= label_tag "haven_check_in[phone]", "Phone number (optional)", class: "form-label" %>
+    <%= telephone_field_tag "haven_check_in[phone]", params.dig(:haven_check_in, :phone), class: "form-control", placeholder: "Phone number" %>
+  </div>
+
+  <div class="mb-3">
+    <%= label_tag "haven_check_in[checked_in_at]", "Date in", class: "form-label" %>
+    <%= datetime_local_field_tag "haven_check_in[checked_in_at]", params.dig(:haven_check_in, :checked_in_at) || Time.current.strftime("%Y-%m-%dT%H:%M"), required: true, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= label_tag "haven_check_in[checked_out_at]", "Date out (optional)", class: "form-label" %>
+    <%= datetime_local_field_tag "haven_check_in[checked_out_at]", params.dig(:haven_check_in, :checked_out_at), class: "form-control" %>
+  </div>
+
+  <div class="mb-3 form-check">
+    <%= check_box_tag "haven_check_in[has_car]", "1", params.dig(:haven_check_in, :has_car) == "1", class: "form-check-input", id: "haven_check_in_has_car" %>
+    <%= label_tag "haven_check_in_has_car", "Has a car?", class: "form-check-label" %>
+  </div>
+
+  <div class="mb-3">
+    <%= label_tag "haven_check_in[num_children]", "Number of children", class: "form-label" %>
+    <%= number_field_tag "haven_check_in[num_children]", params.dig(:haven_check_in, :num_children) || 0, min: 0, class: "form-control" %>
+  </div>
+
+  <div class="mb-3 form-check">
+    <%= check_box_tag "haven_check_in[has_pet]", "1", params.dig(:haven_check_in, :has_pet) == "1", class: "form-check-input", id: "haven_check_in_has_pet" %>
+    <%= label_tag "haven_check_in_has_pet", "Has a pet?", class: "form-check-label" %>
+  </div>
+
+  <div class="mb-3">
+    <%= label_tag "haven_check_in[haven_notes]", "Notes", class: "form-label" %>
+    <%= text_area_tag "haven_check_in[haven_notes]", params.dig(:haven_check_in, :haven_notes), rows: 4, class: "form-control", placeholder: "Any additional notes..." %>
+  </div>
+
+  <%= f.submit "Check In to Haven", class: "btn btn-success" %>
+  <%= link_to "Cancel", root_path, class: "btn btn-secondary ms-2" %>
+<% end %>
