@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_08_000001) do
   create_table "facebook_posts", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "facebook_post_id"
