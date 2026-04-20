@@ -314,9 +314,19 @@ end
       @grouped_by_program[label] ||= items if items.present?
     end
 
+    # When a specific category is requested, filter to just that one
+    if params[:category].present?
+      @grouped_by_program = @grouped_by_program.slice(params[:category])
+    end
+
     respond_to do |format|
       format.xlsx do
-        filename = "programs-#{@period_label.parameterize}-#{Time.current.to_date}.xlsx"
+        if params[:category].present?
+          category_slug = params[:category].parameterize
+          filename = "#{category_slug}-#{@period_label.parameterize}-#{Time.current.to_date}.xlsx"
+        else
+          filename = "programs-#{@period_label.parameterize}-#{Time.current.to_date}.xlsx"
+        end
         response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
       end
     end
