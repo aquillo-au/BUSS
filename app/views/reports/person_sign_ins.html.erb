@@ -28,6 +28,10 @@
       </ul>
     </div>
   <% end %>
+  <%= link_to "Download Excel",
+        reports_person_sign_ins_export_path(@person, period: params[:period], year: params[:year], from: params[:from], to: params[:to], format: :xlsx),
+        class: "btn btn-sm btn-success ms-auto",
+        data: { turbo: false } %>
 </div>
 
 <%= form_with url: reports_person_sign_ins_path(@person), method: :get, local: true, class: "mb-3 row g-2 align-items-end" do |f| %>

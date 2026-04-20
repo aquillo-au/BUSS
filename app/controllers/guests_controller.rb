@@ -1,6 +1,6 @@
 class GuestsController < ApplicationController
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [ :history ]
+  before_action :authenticate_admin!, only: [ :history, :export ]
   before_action :auto_logout_overdue
   before_action :set_person, only: [ :edit, :update, :destroy, :arrive, :archive, :unarchive ]
 
@@ -260,6 +260,66 @@ end
   def unarchive
     @person.update!(archived: false)
     redirect_back fallback_location: history_guests_path, notice: "#{@person.name} unarchived."
+  end
+
+  # GET /guests/export.xlsx
+  def export
+    period = params[:period] || "year"
+
+    case period
+    when "year"
+      start_date = Time.current.beginning_of_year
+      @period_label = "This Year"
+    when "6_months"
+      start_date = 6.months.ago
+      @period_label = "Last 6 Months"
+    when "12_months"
+      start_date = 12.months.ago
+      @period_label = "Last 12 Months"
+    when "all_time"
+      start_date = SignIn.where(is_haven_checkin: false).minimum(:arrived_at) || 100.years.ago
+      @period_label = "All Time"
+    when "previous_year"
+      year = params[:year]&.to_i || Time.current.year - 1
+      start_date = Date.new(year, 1, 1).beginning_of_day
+      end_date = Date.new(year, 12, 31).end_of_day
+      @period_label = year.to_s
+    else
+      start_date = Time.current.beginning_of_year
+      @period_label = "This Year"
+    end
+
+    sign_ins =
+      if period == "previous_year"
+        SignIn.includes(:person).where(is_haven_checkin: false).where(arrived_at: start_date..end_date)
+      else
+        SignIn.includes(:person).where(is_haven_checkin: false).where("arrived_at >= ?", start_date)
+      end
+
+    @period = period
+
+    program_order = [
+      "Frypan Warriors", "Working Group", "Bible Study", "Board Meetings",
+      "Smart Lunch", "Activities", "Bathurst Buddies", "Community Gardens",
+      "Music BUSS", "Cafe", "Misc/Unknown"
+    ]
+
+    grouped = sign_ins.to_a.group_by(&:category_label)
+    @grouped_by_program = program_order.each_with_object({}) do |prog, hash|
+      items = grouped[prog]
+      hash[prog] = items if items.present?
+    end
+    # Include any labels not in the canonical order
+    grouped.each do |label, items|
+      @grouped_by_program[label] ||= items if items.present?
+    end
+
+    respond_to do |format|
+      format.xlsx do
+        filename = "programs-#{@period_label.parameterize}-#{Date.today}.xlsx"
+        response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+      end
+    end
   end
 
   private

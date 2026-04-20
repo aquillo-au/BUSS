@@ -236,6 +236,107 @@ class ReportsController < ApplicationController
     @avg_minutes_per_visit = all_durations.present? ? (all_durations.sum.to_f / all_durations.size).round : 0
   end
 
+  # GET /reports/people/:id/sign_ins/export.xlsx
+  def person_sign_ins_export
+    @person = Person.find(params[:id])
+
+    period = params[:period]
+    @period = period
+
+    if period.present?
+      case period
+      when "year"
+        start_date = Time.current.beginning_of_year
+        end_date   = nil
+        @period_label = "This Year"
+      when "6_months"
+        start_date = 6.months.ago
+        end_date   = nil
+        @period_label = "Last 6 Months"
+      when "12_months"
+        start_date = 12.months.ago
+        end_date   = nil
+        @period_label = "Last 12 Months"
+      when "previous_year"
+        year = params[:year]&.to_i || Time.current.year - 1
+        start_date = Date.new(year, 1, 1).beginning_of_day
+        end_date   = Date.new(year, 12, 31).end_of_day
+        @period_label = year.to_s
+      else
+        start_date = Time.current.beginning_of_year
+        end_date   = nil
+        @period_label = "This Year"
+      end
+
+      range = end_date ? start_date..end_date : start_date..Time.current.end_of_day
+    else
+      from_date = parse_date(params[:from])
+      to_date   = parse_date(params[:to])
+
+      range =
+        if from_date && to_date
+          from_date.beginning_of_day..to_date.end_of_day
+        elsif from_date
+          from_date.beginning_of_day..Time.current.end_of_day
+        elsif to_date
+          Time.at(0)..to_date.end_of_day
+        else
+          nil
+        end
+      @period_label = "Custom Range"
+    end
+
+    sign_ins_scope = SignIn.where(person_id: @person.id).order(:arrived_at)
+    sign_ins_scope = sign_ins_scope.where(arrived_at: range) if range
+    @sign_ins = sign_ins_scope
+
+    @program_sign_ins = @sign_ins.reject(&:activity?)
+    grouped_by_program = @program_sign_ins.group_by { |s| s.category_label || "Uncategorized" }
+
+    @first_sign_in_ids_by_program = {}
+    grouped_by_program.each do |program, sis|
+      first = sis.select { |x| x.arrived_at.present? }.min_by(&:arrived_at)
+      @first_sign_in_ids_by_program[program] = first&.id
+    end
+
+    # Build rows with rolling averages
+    cumulative_all = 0
+    count_all = 0
+    program_running = Hash.new { |h, k| h[k] = { sum: 0, count: 0 } }
+
+    @rows = @sign_ins.map do |s|
+      actual = s.duration_in_minutes
+      capped = s.capped_duration_in_minutes
+      program = s.category_label || "Uncategorized"
+
+      count_all += 1
+      cumulative_all += capped
+      rolling_avg_all = (cumulative_all / count_all.to_f).round
+
+      program_running[program][:count] += 1
+      program_running[program][:sum] += capped
+      rolling_avg_program = (program_running[program][:sum] / program_running[program][:count].to_f).round
+
+      {
+        sign_in: s,
+        program: program,
+        actual_minutes: actual,
+        rolling_avg_minutes: rolling_avg_all,
+        program_rolling_avg_minutes: rolling_avg_program,
+        first_in_program: (@first_sign_in_ids_by_program[program] == s.id)
+      }
+    end
+
+    respond_to do |format|
+      format.xlsx do
+        person_slug = @person.name.parameterize
+        period_slug = (@period_label || "all").parameterize
+        filename = "#{person_slug}-sign-ins-#{period_slug}-#{Date.today}.xlsx"
+        response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+      end
+    end
+  end
+
   private
 
   def parse_date(val)
