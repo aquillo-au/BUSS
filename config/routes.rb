@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     end
     collection do
       get :history
+      get :export
     end
   end
 
@@ -48,4 +49,5 @@ Rails.application.routes.draw do
 
   get "reports/category_averages", to: "reports#category_averages", as: :reports_category_averages
   get "reports/people/:id/sign_ins", to: "reports#person_sign_ins", as: :reports_person_sign_ins
+  get "reports/people/:id/sign_ins/export", to: "reports#person_sign_ins_export", as: :reports_person_sign_ins_export
 end

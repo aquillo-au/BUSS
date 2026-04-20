@@ -1,0 +1,40 @@
+wb = xlsx_package.workbook
+
+header_style = wb.styles.add_style(b: true, fg_color: "FFFFFF", bg_color: "2E75B6", sz: 11, border: { style: :thin, color: "CCCCCC" })
+cell_style    = wb.styles.add_style(border: { style: :thin, color: "DDDDDD" })
+date_style    = wb.styles.add_style(format_code: "YYYY-MM-DD", border: { style: :thin, color: "DDDDDD" })
+time_style    = wb.styles.add_style(format_code: "HH:MM", border: { style: :thin, color: "DDDDDD" })
+
+@grouped_by_program.each do |program, sign_ins|
+  # Excel worksheet names cannot exceed 31 characters
+  sheet_name = program.length > 31 ? program[0, 31] : program
+
+  wb.add_worksheet(name: sheet_name) do |sheet|
+    sheet.add_row(
+      ["Person", "Date", "Arrived", "Left", "Duration (min)", "Volunteer?"],
+      style: [header_style] * 6
+    )
+
+    sign_ins.sort_by { |s| s.arrived_at || Time.at(0) }.each do |s|
+      sheet.add_row(
+        [
+          s.person.name,
+          s.arrived_at&.to_date,
+          s.arrived_at&.strftime("%H:%M"),
+          s.left_at&.strftime("%H:%M") || "",
+          s.duration_in_minutes,
+          s.person.volunteer? ? "Yes" : "No"
+        ],
+        style: [cell_style, date_style, cell_style, cell_style, cell_style, cell_style]
+      )
+    end
+
+    # Auto-fit column widths
+    sheet.column_info[0].width = 28
+    sheet.column_info[1].width = 14
+    sheet.column_info[2].width = 10
+    sheet.column_info[3].width = 10
+    sheet.column_info[4].width = 16
+    sheet.column_info[5].width = 12
+  end
+end

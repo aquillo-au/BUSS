@@ -1,0 +1,45 @@
+wb = xlsx_package.workbook
+
+header_style   = wb.styles.add_style(b: true, fg_color: "FFFFFF", bg_color: "2E75B6", sz: 11, border: { style: :thin, color: "CCCCCC" })
+cell_style      = wb.styles.add_style(border: { style: :thin, color: "DDDDDD" })
+date_style      = wb.styles.add_style(format_code: "YYYY-MM-DD", border: { style: :thin, color: "DDDDDD" })
+highlight_style = wb.styles.add_style(bg_color: "E2EFDA", border: { style: :thin, color: "DDDDDD" })
+
+wb.add_worksheet(name: "Sign-ins") do |sheet|
+  sheet.add_row(
+    ["#", "Date", "Program", "Activity?", "Program Rolling Avg (min)", "Duration (min)", "Rolling Avg (min)", "Arrived", "Left", "First in Program?"],
+    style: [header_style] * 10
+  )
+
+  @rows.each_with_index do |row, idx|
+    s = row[:sign_in]
+    row_style = row[:first_in_program] ? [highlight_style] * 10 : [cell_style, date_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style, cell_style]
+
+    sheet.add_row(
+      [
+        idx + 1,
+        s.arrived_at&.to_date,
+        row[:program],
+        s.activity? ? "Yes" : "No",
+        row[:program_rolling_avg_minutes],
+        row[:actual_minutes],
+        row[:rolling_avg_minutes],
+        s.arrived_at&.strftime("%H:%M") || "",
+        s.left_at&.strftime("%H:%M") || "",
+        row[:first_in_program] && row[:program] != "Uncategorized" ? "Yes" : ""
+      ],
+      style: row_style
+    )
+  end
+
+  sheet.column_info[0].width  = 5
+  sheet.column_info[1].width  = 14
+  sheet.column_info[2].width  = 22
+  sheet.column_info[3].width  = 10
+  sheet.column_info[4].width  = 26
+  sheet.column_info[5].width  = 16
+  sheet.column_info[6].width  = 18
+  sheet.column_info[7].width  = 10
+  sheet.column_info[8].width  = 10
+  sheet.column_info[9].width  = 18
+end

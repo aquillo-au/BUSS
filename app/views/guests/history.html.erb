@@ -311,6 +311,7 @@
 <% end %>
 
 <%= link_to "Group times", reports_category_averages_path, class: "btn btn-secondary mt-3" %>
+<%= link_to "Download Excel", export_guests_path(period: params[:period], year: params[:year], format: :xlsx), class: "btn btn-success mt-3" %>
 <%= link_to "Back to Guests", check_in_path, class: "btn btn-secondary mt-3" %>
 <%= link_to "View all incidents", incidents_path, class: "btn btn-danger mb-3" %>
 <%= link_to "Haven History", history_haven_check_ins_path, class: "btn btn-info mt-3" %>
