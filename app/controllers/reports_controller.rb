@@ -331,7 +331,7 @@ class ReportsController < ApplicationController
       format.xlsx do
         person_slug = @person.name.parameterize
         period_slug = (@period_label || "all").parameterize
-        filename = "#{person_slug}-sign-ins-#{period_slug}-#{Date.today}.xlsx"
+        filename = "#{person_slug}-sign-ins-#{period_slug}-#{Time.current.to_date}.xlsx"
         response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
       end
     end

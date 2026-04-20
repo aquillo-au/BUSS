@@ -316,7 +316,7 @@ end
 
     respond_to do |format|
       format.xlsx do
-        filename = "programs-#{@period_label.parameterize}-#{Date.today}.xlsx"
+        filename = "programs-#{@period_label.parameterize}-#{Time.current.to_date}.xlsx"
         response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
       end
     end
