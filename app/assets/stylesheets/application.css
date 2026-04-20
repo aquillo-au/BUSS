@@ -113,3 +113,302 @@
 .fab-text {
   white-space: nowrap;
 }
+
+/* ─────────────────────────────────────────────────────────
+   Landing Page – BUSS Redesign
+   ───────────────────────────────────────────────────────── */
+
+/* Hero */
+.buss-hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%);
+  overflow: hidden;
+  padding: 4rem 1rem;
+}
+
+.buss-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(230, 100, 50, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(80, 160, 230, 0.15) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.buss-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.buss-logo {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(255,255,255,0.15), 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.buss-hero-title {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.buss-hero-subtitle {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: rgba(255,255,255,0.82);
+  line-height: 1.7;
+  max-width: 580px;
+  margin: 0 auto 1.5rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+
+.buss-btn-primary {
+  background: linear-gradient(135deg, #e85d26, #f4a24b);
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.7rem 1.8rem;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 4px 18px rgba(232, 93, 38, 0.45);
+  transition: transform 0.15s, box-shadow 0.15s;
+  text-decoration: none;
+}
+
+.buss-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(232, 93, 38, 0.6);
+  color: #fff !important;
+}
+
+.buss-btn-secondary {
+  background: rgba(255,255,255,0.12);
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 1.05rem;
+  padding: 0.7rem 1.8rem;
+  border: 2px solid rgba(255,255,255,0.55);
+  border-radius: 50px;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.buss-btn-secondary:hover {
+  background: rgba(255,255,255,0.22);
+  border-color: #fff;
+  color: #fff !important;
+}
+
+/* Stats */
+.buss-stats {
+  background: #f4f6fa;
+}
+
+.buss-section-title {
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+  color: #1a1a2e;
+  letter-spacing: -0.3px;
+}
+
+.buss-stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  height: 100%;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.buss-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+}
+
+.buss-stat-icon {
+  font-size: 2.4rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.buss-stat-number {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #e85d26;
+  line-height: 1.1;
+}
+
+.buss-stat-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  margin-top: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* About */
+.buss-about {
+  background: #ffffff;
+}
+
+.buss-about-icon {
+  width: min(260px, 80%);
+  height: auto;
+  opacity: 0.92;
+  filter: drop-shadow(0 6px 24px rgba(0,0,0,0.12));
+}
+
+.buss-about-text {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.buss-link {
+  color: #e85d26;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.buss-link:hover {
+  text-decoration: underline;
+}
+
+/* Facebook Feed */
+.buss-feed {
+  background: #f4f6fa;
+}
+
+.buss-fb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1877F2;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1.1rem;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.buss-fb-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  transition: box-shadow 0.15s;
+}
+
+.buss-fb-card:hover {
+  box-shadow: 0 4px 22px rgba(0,0,0,0.13);
+}
+
+.buss-fb-img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+.buss-fb-body {
+  padding: 1.2rem 1.4rem;
+}
+
+.buss-fb-text {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.buss-fb-time {
+  color: #999;
+  font-size: 0.87rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.buss-fb-link {
+  color: #1877F2;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.93rem;
+}
+
+.buss-fb-link:hover {
+  text-decoration: underline;
+}
+
+.buss-feed-empty {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+}
+
+/* Admin bar */
+.buss-admin-bar {
+  background: #1a1a2e;
+}
+
+.buss-btn-admin {
+  background: rgba(255,255,255,0.1);
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  padding: 0.45rem 1.1rem;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.buss-btn-admin:hover {
+  background: rgba(255,255,255,0.2);
+  color: #fff !important;
+}
+
+.buss-btn-logout {
+  background: rgba(220, 53, 69, 0.75);
+  color: #fff !important;
+  border: 1px solid rgba(220, 53, 69, 0.5);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  padding: 0.45rem 1.1rem;
+  transition: background 0.15s;
+}
+
+.buss-btn-logout:hover {
+  background: #dc3545;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .buss-hero {
+    min-height: auto;
+    padding: 3.5rem 1rem;
+  }
+  .buss-logo {
+    width: 80px;
+    height: 80px;
+  }
+  .buss-stat-number {
+    font-size: 1.5rem;
+  }
+}
