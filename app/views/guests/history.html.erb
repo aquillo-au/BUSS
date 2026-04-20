@@ -184,6 +184,10 @@
       <% end %>
       <span class="badge text-bg-dark" title="Includes volunteers">Avg time: <%= group_avg_minutes %> min</span>
       <span class="badge text-bg-info" title="Excludes volunteers">Avg (Without volunteers): <%= group_avg_minutes_no_vol %> min</span>
+      <%= link_to "Export Excel",
+                  export_guests_path(category: category, period: params[:period], year: params[:year], format: :xlsx),
+                  class: "btn btn-sm btn-success",
+                  data: { turbo: false } %>
     </div>
   </div>
 
