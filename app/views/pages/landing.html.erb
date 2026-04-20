@@ -1,61 +1,141 @@
 <%# Landing Page View %>
 
-<div class="hero" style="text-align: center; padding: 50px; background-color: #f9f9f9;">
-  <h1>Welcome to the BUSS Application</h1>
-  <p>The mission of the Bathurst Uniting Support Services (BUSS) program is "Creating connection, Affirming dignity, Supporting growth – Supporting people who are homeless or those with addictions to grow, connecting to community and God.”
-
-BUSS operates programs and the weekend BUSS Café for people who are homeless, poor, socially isolated; and those with addictions and recovering from addictions. Our aim is to improve the lives of our participants; helping them to make connections to community and each other and assisting and supporting them to make better and more informed, responsible choices.
-
-Addiction is a disease that causes isolation and loneliness. Many of those who are trying to recover from their addictions have to give up their friends who are still drinking, gambling or using, and many have already burnt their bridges with their families. Boredom, isolation and loneliness are all barriers to recovery. BUSS runs a number of programs during the week to help people come together and make social connections as well, and/or learn new skills. All the activities involve participants and volunteers from the community so the social connectedness is substantial.
-
-"The opposite of addiction is not sobriety, it is connection" Johann Hari, leading addictions researcher.
-
-If you'd like to see more about what is happening, volunteer or donate you can find more information on our <a href="https://www.facebook.com/BathurstBUSS">Facebook page</a> or call us on 0455 328 966.
-
-  <div style="margin-top: 20px;">
-    <a href="<%= check_in_path %>" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border-radius: 5px; text-decoration: none; margin-right: 10px;">Check In Now</a>
-    <%= link_to "Log into the Haven", new_haven_check_in_path, class: "btn btn-secondary", style: "padding: 10px 20px; font-size: 16px; background-color: #28a745; color: white; border-radius: 5px; text-decoration: none;" %>
-  </div>
-</div>
-
-  <div class="facebook-feed" style="max-width: 900px; margin: 50px auto; padding: 20px;">
-  <h2 style="text-align: center; margin-bottom: 30px;">Latest Updates from our Facebook Page</h2>
-
-  <% if @facebook_posts&.any? %>
-    <% @facebook_posts.each do |post| %>
-      <div style="border: 1px solid #e0e0e0; padding: 20px; margin: 15px 0; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <% if post.image_url.present? %>
-          <img src="<%= post.image_url %>" alt="Post image" style="max-width: 100%; height: auto; margin-bottom: 15px; border-radius: 5px;">
-        <% end %>
-
-        <p style="font-size: 16px; line-height: 1.6; color: #333;">
-          <%= truncate(post.message, length: 300) %>
-        </p>
-
-        <small style="color: #999; font-size: 14px;">
-          <%= time_ago_in_words(post.published_at) %> ago
-        </small>
-
-        <br><br>
-
-        <% if post.post_url.present? %>
-          <a href="<%= post.post_url %>" target="_blank" style="color: #1877F2; text-decoration: none; font-weight: bold;">
-            View on Facebook →
-          </a>
-        <% end %>
-      </div>
-    <% end %>
-  <% else %>
-    <p style="text-align: center; color: #999; padding: 30px;">
-      No posts found yet. Check back soon for updates!
+<%# ── Hero ─────────────────────────────────────────────────── %>
+<section class="buss-hero">
+  <div class="buss-hero-overlay"></div>
+  <div class="container buss-hero-content text-center">
+    <img src="/icon.png" alt="Bathurst Uniting Support Services logo" class="buss-logo mb-4">
+    <h1 class="buss-hero-title">Creating Connection.<br>Affirming Dignity.<br>Supporting Growth.</h1>
+    <p class="buss-hero-subtitle">
+      Bathurst Uniting Support Services (BUSS) walks alongside people experiencing homelessness,
+      poverty, and addiction &mdash; helping them reconnect with community and find a path forward.
     </p>
-  <% end %>
-  <div style="margin-top: 20px;">
-    <a href="<%= admin_path %>" class="btn btn-primary" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border-radius: 5px; text-decoration: none; margin-right: 10px;">Admin</a>
-  </div>
-  <% if user_signed_in? %>
-    <div style="margin-top: 20px;">
-      <%= button_to "Logout", logout_path, method: :delete, class: "btn btn-danger", style: "padding: 10px 20px; font-size: 16px; border-radius: 5px;" %>
+    <div class="buss-hero-ctas mt-4">
+      <a href="<%= check_in_path %>" class="btn buss-btn-primary me-2"><span aria-hidden="true">&#10003;</span> Check In Now</a>
+      <%= link_to "Haven Log In", new_haven_check_in_path, class: "btn buss-btn-secondary" %>
     </div>
-  <% end %>
-</div>
+  </div>
+</section>
+
+<%# ── Impact Stats ─────────────────────────────────────────── %>
+<section class="buss-stats py-5">
+  <div class="container">
+    <h2 class="buss-section-title text-center mb-5">Our Impact Last Year</h2>
+    <div class="row g-4 justify-content-center">
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="buss-stat-card">
+          <div class="buss-stat-icon" aria-hidden="true">🍽️</div>
+          <div class="buss-stat-number">3,000+</div>
+          <div class="buss-stat-label">Meals Served</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="buss-stat-card">
+          <div class="buss-stat-icon" aria-hidden="true">🚿</div>
+          <div class="buss-stat-number">500+</div>
+          <div class="buss-stat-label">Warm Showers</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="buss-stat-card">
+          <div class="buss-stat-icon" aria-hidden="true">🎒</div>
+          <div class="buss-stat-number">100+</div>
+          <div class="buss-stat-label">Dignity Bags</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="buss-stat-card">
+          <div class="buss-stat-icon" aria-hidden="true">🤝</div>
+          <div class="buss-stat-number">75+</div>
+          <div class="buss-stat-label">Volunteers</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="buss-stat-card">
+          <div class="buss-stat-icon" aria-hidden="true">🔗</div>
+          <div class="buss-stat-number">4,000+</div>
+          <div class="buss-stat-label">Connections Made</div>
+        </div>
+      </div>
+
+      <div class="col-6 col-md-4 col-lg-2">
+        <div class="buss-stat-card">
+          <div class="buss-stat-icon" aria-hidden="true">⛺</div>
+          <div class="buss-stat-number">60+</div>
+          <div class="buss-stat-label">Crisis Tents Provided</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<%# ── About ────────────────────────────────────────────────── %>
+<section class="buss-about py-5">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-md-6 text-center">
+        <img src="/icon.svg" alt="BUSS icon" class="buss-about-icon">
+      </div>
+      <div class="col-md-6">
+        <h2 class="buss-section-title mb-4">What We Do</h2>
+        <p class="buss-about-text">
+          BUSS runs the weekend <strong>BUSS Café</strong> and a range of weekday programs for people
+          who are homeless, poor, or socially isolated &mdash; as well as those living with or recovering from addiction.
+        </p>
+        <p class="buss-about-text">
+          All our activities bring together participants and community volunteers, building real social connections
+          and new skills. We believe <em>&ldquo;the opposite of addiction is not sobriety, it is connection.&rdquo;</em>
+        </p>
+        <p class="buss-about-text mb-0">
+          Want to volunteer, donate, or find out more?
+          Visit our <a href="https://www.facebook.com/BathurstBUSS" target="_blank" class="buss-link">Facebook page</a>
+          or call us on <strong>0455&nbsp;328&nbsp;966</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# ── Facebook Feed ────────────────────────────────────────── %>
+<section class="buss-feed py-5">
+  <div class="container" style="max-width: 860px;">
+    <h2 class="buss-section-title text-center mb-5">
+      <span class="buss-fb-badge" aria-hidden="true">f</span> Latest from Facebook
+    </h2>
+
+    <% if @facebook_posts&.any? %>
+      <% @facebook_posts.each do |post| %>
+        <div class="buss-fb-card mb-4">
+          <% if post.image_url.present? %>
+            <img src="<%= post.image_url %>" alt="Post image" class="buss-fb-img">
+          <% end %>
+          <div class="buss-fb-body">
+            <p class="buss-fb-text"><%= truncate(post.message, length: 300) %></p>
+            <small class="buss-fb-time"><%= time_ago_in_words(post.published_at) %> ago</small>
+            <% if post.post_url.present? %>
+              <a href="<%= post.post_url %>" target="_blank" class="buss-fb-link">View on Facebook &rarr;</a>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="buss-feed-empty">No posts found yet. Check back soon for updates!</p>
+    <% end %>
+  </div>
+</section>
+
+<%# ── Admin Actions ────────────────────────────────────────── %>
+<section class="buss-admin-bar py-3">
+  <div class="container d-flex flex-wrap gap-2 justify-content-center align-items-center">
+    <a href="<%= admin_path %>" class="btn buss-btn-admin"><span aria-hidden="true">&#9881;</span> Admin</a>
+    <% if user_signed_in? %>
+      <%= button_to "Log Out", logout_path, method: :delete, class: "btn buss-btn-logout" %>
+    <% end %>
+  </div>
+</section>
