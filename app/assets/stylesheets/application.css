@@ -140,6 +140,17 @@
   pointer-events: none;
 }
 
+.buss-hero-bg-logo {
+  position: absolute;
+  right: -60px;
+  bottom: -40px;
+  width: 420px;
+  height: auto;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+}
+
 .buss-hero-content {
   position: relative;
   z-index: 1;
@@ -148,11 +159,10 @@
 }
 
 .buss-logo {
-  width: 110px;
-  height: 110px;
+  width: 160px;
+  height: auto;
   object-fit: contain;
-  border-radius: 50%;
-  box-shadow: 0 0 0 6px rgba(255,255,255,0.15), 0 8px 32px rgba(0,0,0,0.4);
+  filter: drop-shadow(0 6px 24px rgba(0,0,0,0.45));
 }
 
 .buss-hero-title {
@@ -216,6 +226,13 @@
   background: #f4f6fa;
 }
 
+.buss-stats-motif {
+  width: 72px;
+  height: auto;
+  opacity: 0.85;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+}
+
 .buss-section-title {
   font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 800;
@@ -265,11 +282,20 @@
   background: #ffffff;
 }
 
+.buss-about-logo-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f4f6fa, #e8ecf4);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.08);
+}
+
 .buss-about-icon {
-  width: min(260px, 80%);
+  width: min(220px, 80%);
   height: auto;
-  opacity: 0.92;
-  filter: drop-shadow(0 6px 24px rgba(0,0,0,0.12));
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.15));
 }
 
 .buss-about-text {
@@ -405,8 +431,8 @@
     padding: 3.5rem 1rem;
   }
   .buss-logo {
-    width: 80px;
-    height: 80px;
+    width: 110px;
+    height: auto;
   }
   .buss-stat-number {
     font-size: 1.5rem;
