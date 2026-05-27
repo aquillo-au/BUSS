@@ -32,7 +32,7 @@ class ReportsController < ApplicationController
 
     # date => [{ person:, average:, visits: }, ...]
     @by_date_person_summary = {}
-    # date => { avg_per_person: Integer, people_count: Integer }
+    # date => { avg_per_person: Integer, people_count: Integer, avg_attendance: Integer }
     @by_date_collective_average = {}
 
     @by_date_category_person.each do |date_key, categories|
@@ -68,7 +68,8 @@ class ReportsController < ApplicationController
 
       @by_date_collective_average[date_key] = {
         avg_per_person: daily_avg_per_person,
-        people_count: people_count
+        people_count: people_count,
+        avg_attendance: people_count
       }
     end
 
@@ -234,6 +235,8 @@ class ReportsController < ApplicationController
     all_durations = valid_sign_ins.map(&:capped_duration_in_minutes)
     @total_visits = all_durations.size
     @avg_minutes_per_visit = all_durations.present? ? (all_durations.sum.to_f / all_durations.size).round : 0
+    weekly_attendance_counts = weeks.values.map(&:size)
+    @avg_attendance_per_week = weekly_attendance_counts.present? ? (weekly_attendance_counts.sum.to_f / weekly_attendance_counts.size).round(1) : 0
   end
 
   # GET /reports/people/:id/sign_ins/export.xlsx

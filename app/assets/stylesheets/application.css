@@ -140,17 +140,6 @@
   pointer-events: none;
 }
 
-.buss-hero-bg-logo {
-  position: absolute;
-  right: -60px;
-  bottom: -40px;
-  width: 420px;
-  height: auto;
-  opacity: 0.06;
-  pointer-events: none;
-  user-select: none;
-}
-
 .buss-hero-content {
   position: relative;
   z-index: 1;
@@ -224,13 +213,6 @@
 /* Stats */
 .buss-stats {
   background: #f4f6fa;
-}
-
-.buss-stats-motif {
-  width: 72px;
-  height: auto;
-  opacity: 0.85;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
 }
 
 .buss-section-title {

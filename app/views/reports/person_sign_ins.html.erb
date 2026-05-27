@@ -64,6 +64,7 @@
             <div class="d-flex gap-3 align-items-center">
               <span class="badge text-bg-secondary">Total visits: <%= @total_visits %></span>
               <span class="badge text-bg-info">Avg per visit: <%= @avg_minutes_per_visit %> min</span>
+              <span class="badge text-bg-primary">Avg attendance: <%= @avg_attendance_per_week %> visits/week</span>
               <% if @trend_direction %>
                 <% if @trend_direction == "up" %>
                   <span class="badge text-bg-success">&#8593; Increasing</span>

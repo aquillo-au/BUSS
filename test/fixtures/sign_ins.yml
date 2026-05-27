@@ -4,8 +4,16 @@
 # model remove the "{}" from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-# column: value
+one:
+  person: one
+  arrived_at: 2026-01-05 09:00:00
+  left_at: 2026-01-05 10:00:00
+  is_haven_checkin: false
+  activity: false
+
+two:
+  person: two
+  arrived_at: 2026-01-06 09:30:00
+  left_at: 2026-01-06 10:30:00
+  is_haven_checkin: false
+  activity: false
