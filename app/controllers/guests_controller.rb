@@ -199,7 +199,7 @@ end
 
   # Calculate overall average time across all programs
   all_durations = []
-  all_attendee_periods = {}
+  attendee_counts_by_period = Hash.new { |h, k| h[k] = [] }
 
   chart_category_order.each do |cat|
     items = by_program[cat]
@@ -222,14 +222,30 @@ end
 
       # Track for overall average
       all_durations.concat(period_items.map { |s| s.capped_duration_in_minutes })
-      all_attendee_periods[label] ||= 0
-      all_attendee_periods[label] += period_items.map(&:person_id).compact.uniq.size
-
-      attendees_data[label] = period_items.map(&:person_id).compact.uniq.size
+      attendees_count = period_items.map(&:person_id).compact.uniq.size
+      attendees_data[label] = attendees_count
+      attendee_counts_by_period[label] << attendees_count
     end
 
     @avg_time_chart_data << { name: cat, data: avg_data }
     @attendees_chart_data << { name: cat, data: attendees_data }
+  end
+
+  if attendee_counts_by_period.present?
+    average_attendance_data = attendee_counts_by_period.transform_values do |counts|
+      (counts.sum.to_f / counts.size).round(2)
+    end
+    @attendees_chart_data << {
+      name: "Average Attendance",
+      data: average_attendance_data,
+      dataset: {
+        type: "line",
+        borderColor: "#212529",
+        borderWidth: 2,
+        fill: false
+      },
+      points: true
+    }
   end
 
   # Calculate overall average line

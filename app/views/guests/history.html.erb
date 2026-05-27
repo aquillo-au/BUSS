@@ -63,10 +63,10 @@
           </div>
           <div class="col-lg-6" data-controller="chart-toggle">
             <h6 class="mb-2">Total Attendees per Program</h6>
-            <p class="text-muted small mb-3"><em>Click legend items to show/hide programs</em></p>
+            <p class="text-muted small mb-3"><em>Click legend items to show/hide programs (includes overall average attendance line)</em></p>
             <%= bar_chart @attendees_chart_data,
                           height: "560px",
-                          colors: ["#0d6efd","#198754","#dc3545","#fd7e14","#0dcaf0","#6f42c1","#ffc107","#20c997","#d63384","#6c757d","#adb5bd"],
+                          colors: ["#0d6efd","#198754","#dc3545","#fd7e14","#0dcaf0","#6f42c1","#ffc107","#20c997","#d63384","#6c757d","#adb5bd","#212529"],
                           stacked: false,
                           library: { responsive: true, maintainAspectRatio: false,
                                     plugins: { legend: { position: "bottom" } } } %>
