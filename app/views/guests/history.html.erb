@@ -176,8 +176,11 @@
     end
     attendees_by_date = category_chart_data.transform_values { |daily_items| daily_items.map(&:person_id).uniq.compact.size }
     group_avg_attendance = attendees_by_date.present? ? (attendees_by_date.values.sum.to_f / attendees_by_date.size).round(2) : 0
-    average_attendance_by_date = attendees_by_date.keys.sort.each_with_object({}) do |date, data|
-      data[date] = group_avg_attendance
+    average_attendance_by_date = {}
+    running_attendance_total = 0
+    attendees_by_date.sort.each_with_index do |(date, attendees), index|
+      running_attendance_total += attendees
+      average_attendance_by_date[date] = (running_attendance_total.to_f / (index + 1)).round(2)
     end
   %>
   <div class="card-header d-flex justify-content-between align-items-center">
