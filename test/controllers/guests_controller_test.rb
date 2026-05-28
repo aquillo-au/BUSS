@@ -44,6 +44,10 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Avg attendance: 1.5 people"
+    date_one = week_one.to_date.strftime("%Y-%m-%d")
+    date_two = week_two.to_date.strftime("%Y-%m-%d")
+    assert_match(/"Average Attendance","data":\[\["#{date_one}",2(?:\.0)?\],\["#{date_two}",1\.5\]\]/, response.body)
+    assert_no_match(/"Average Attendance","data":\[\["#{date_one}",1\.5\],\["#{date_two}",1\.5\]\]/, response.body)
     assert_not_includes response.body, "4 sign-ins"
   end
 end
