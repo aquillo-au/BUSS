@@ -25,4 +25,25 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Average Attendance"
   end
+
+  test "history program cards show average attendance metric for selected period" do
+    person1 = Person.create!(name: "Program Metric Person 1")
+    person2 = Person.create!(name: "Program Metric Person 2")
+    person3 = Person.create!(name: "Program Metric Person 3")
+
+    week_one = Time.current.beginning_of_year + 7.days
+    week_two = week_one + 7.days
+    previous_year = Time.current.prev_year.beginning_of_year + 7.days
+
+    SignIn.create!(person: person1, arrived_at: week_one, left_at: week_one + 30.minutes, is_haven_checkin: false)
+    SignIn.create!(person: person2, arrived_at: week_one + 1.hour, left_at: week_one + 80.minutes, is_haven_checkin: false)
+    SignIn.create!(person: person1, arrived_at: week_two, left_at: week_two + 45.minutes, is_haven_checkin: false)
+    SignIn.create!(person: person3, arrived_at: previous_year, left_at: previous_year + 30.minutes, is_haven_checkin: false)
+
+    get history_guests_path(period: "year")
+
+    assert_response :success
+    assert_includes response.body, "Avg attendance: 1.5 people"
+    assert_not_includes response.body, "4 sign-ins"
+  end
 end

@@ -129,7 +129,8 @@
 <% notes_by_date = Note.all.group_by { |n| n.created_at&.to_date } %>
 
   <%
-    grouped = SignIn.includes(:person).where(is_haven_checkin: false).order(arrived_at: :desc).group_by(&:category_label)
+    period_sign_ins = @day_summaries.flat_map { |summary| summary[:sign_ins] }
+    grouped = period_sign_ins.group_by(&:category_label)
     category_order = [
       "Frypan Warriors",
       "Working Group",
@@ -174,6 +175,10 @@
       durations.any? ? (durations.sum.to_f / durations.size).round : 0
     end
     attendees_by_date = category_chart_data.transform_values { |daily_items| daily_items.map(&:person_id).uniq.compact.size }
+    group_avg_attendance = attendees_by_date.present? ? (attendees_by_date.values.sum.to_f / attendees_by_date.size).round(2) : 0
+    average_attendance_by_date = attendees_by_date.keys.sort.each_with_object({}) do |date, data|
+      data[date] = group_avg_attendance
+    end
   %>
   <div class="card-header d-flex justify-content-between align-items-center">
     <strong><%= category %></strong>
@@ -182,6 +187,7 @@
       <% if group_total_meals_served.positive? %>
         <span class="badge text-bg-primary">Meals served: <%= group_total_meals_served %></span>
       <% end %>
+      <span class="badge text-bg-secondary">Avg attendance: <%= group_avg_attendance %> people</span>
       <span class="badge text-bg-dark" title="Includes volunteers">Avg time: <%= group_avg_minutes %> min</span>
       <span class="badge text-bg-info" title="Excludes volunteers">Avg (Without volunteers): <%= group_avg_minutes_no_vol %> min</span>
       <%= link_to "Export Excel",
@@ -221,11 +227,12 @@
   </div>
   <div class="col-lg-6">
     <h6 class="mb-2">Unique Attendees per Day</h6>
-    <%= bar_chart attendees_by_date,
+    <p class="text-muted small mb-3"><em>Includes average attendance line</em></p>
+    <%= bar_chart [{ name: "Unique Attendees", data: attendees_by_date }, { name: "Average Attendance", data: average_attendance_by_date, dataset: { type: "line", borderColor: "#212529", borderWidth: 2, fill: false }, points: true }],
                   height: "500px",
                   colors: ["#198754"],
                   library: { responsive: true, maintainAspectRatio: false,
-                             plugins: { legend: { display: false } } } %>
+                             plugins: { legend: { display: true, position: "bottom" } } } %>
   </div>
 </div>
 
