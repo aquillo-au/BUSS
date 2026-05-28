@@ -96,7 +96,7 @@ class SignIn < ApplicationRecord
         "Community Gardens"
       end
     when 6
-      if time < "12:30"
+      if time < "11:30"
         "Music BUSS"
       else
         "Cafe"
