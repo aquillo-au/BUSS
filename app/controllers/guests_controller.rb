@@ -122,15 +122,19 @@ end
     case period
     when "year"
       start_date = Time.current.beginning_of_year
+      end_date   = nil
       @period_label = "This Year"
     when "6_months"
       start_date = 6.months.ago
+      end_date   = nil
       @period_label = "Last 6 Months"
     when "12_months"
       start_date = 12.months.ago
+      end_date   = nil
       @period_label = "Last 12 Months"
     when "all_time"
       start_date = SignIn.where(is_haven_checkin: false).minimum(:arrived_at) || 100.years.ago
+      end_date   = nil
       @period_label = "All Time"
     when "previous_year"
       year = params[:year]&.to_i || Time.current.year - 1
@@ -139,6 +143,7 @@ end
       @period_label = year.to_s
     else
       start_date = Time.current.beginning_of_year
+      end_date   = nil
       @period_label = "This Year"
     end
 
@@ -153,6 +158,13 @@ end
     @period = period
     @available_years = SignIn.where(is_haven_checkin: false).where.not(arrived_at: nil)
                             .pluck(:arrived_at).map(&:year).uniq.sort.reverse
+
+    # Count new people (Person records) created within the selected period
+    @new_people_count = if end_date
+      Person.where(created_at: start_date..end_date).count
+    else
+      Person.where("created_at >= ?", start_date).count
+    end
 
     # Group sign-ins and notes by calendar day (local time)
     sign_ins_by_date = sign_ins.group_by { |s| s.arrived_at&.to_date }.reject { |day, _| day.nil? }
