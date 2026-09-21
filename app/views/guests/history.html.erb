@@ -87,7 +87,7 @@
       <h2 class="h5 mb-3">Everyone</h2>
 
       <% if defined?(@people) && @people.present? %>
-        <ul class="list-group">
+        <ul id="admin-people-list" class="list-group">
           <% @people.each do |person| %>
             <li class="list-group-item d-flex align-items-center justify-content-between">
               <div class="d-flex align-items-center gap-2">

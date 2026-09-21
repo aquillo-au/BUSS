@@ -50,4 +50,33 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/"Average Attendance","data":\[\["#{date_one}",1\.5\],\["#{date_two}",1\.5\]\]/, response.body)
     assert_not_includes response.body, "4 sign-ins"
   end
+
+  test "history lists people alphabetically in admin section" do
+    Person.create!(name: "Zulu Admin Person")
+    Person.create!(name: "Alpha Admin Person")
+    Person.create!(name: "Middle Admin Person")
+
+    get history_guests_path(period: "year")
+
+    assert_response :success
+    people_links = css_select("#admin-people-list li.list-group-item strong a").map(&:text)
+
+    assert_operator people_links.index("Alpha Admin Person"), :<, people_links.index("Middle Admin Person")
+    assert_operator people_links.index("Middle Admin Person"), :<, people_links.index("Zulu Admin Person")
+  end
+
+  test "edit merge people select is alphabetical" do
+    person = Person.create!(name: "Edit Target Person")
+    Person.create!(name: "Zulu Merge Person")
+    Person.create!(name: "Alpha Merge Person")
+    Person.create!(name: "Middle Merge Person")
+
+    get edit_guest_path(person)
+
+    assert_response :success
+    option_names = css_select("select[name='merge_with_id'] option").map(&:text) - [ "Select person to merge into" ]
+
+    assert_operator option_names.index("Alpha Merge Person"), :<, option_names.index("Middle Merge Person")
+    assert_operator option_names.index("Middle Merge Person"), :<, option_names.index("Zulu Merge Person")
+  end
 end

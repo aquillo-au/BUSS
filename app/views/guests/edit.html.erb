@@ -30,7 +30,7 @@
   <div class="mb-3">
     <label for="merge_with_id">Merge this person into: (this will delete the current person and move all records to the selected person)</label>
     <%= select_tag :merge_with_id,
-      options_from_collection_for_select(Person.where.not(id: @person.id), :id, :name),
+      options_from_collection_for_select(Person.where.not(id: @person.id).order(:name), :id, :name),
       prompt: "Select person to merge into",
       class: "form-select" %>
   </div>
