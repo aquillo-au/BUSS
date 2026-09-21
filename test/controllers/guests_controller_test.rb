@@ -79,4 +79,31 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_operator option_names.index("Alpha Merge Person"), :<, option_names.index("Middle Merge Person")
     assert_operator option_names.index("Middle Merge Person"), :<, option_names.index("Zulu Merge Person")
   end
+
+  test "collapse near duplicates merges similar names and keeps linked sign-ins" do
+    primary = Person.create!(name: "Near Duplicate Person", archived: true, email: nil, phone: nil)
+    duplicate_one = Person.create!(name: "Near Duplicate Person One", archived: false, email: "near@example.com")
+    duplicate_two = Person.create!(name: "Near Duplicate Person Two", archived: false, phone: "0400000000")
+    duplicate_three = Person.create!(name: "Near Duplicate Person Three", archived: false, volunteer: true)
+
+    duplicate_one.update_column(:name, "near duplicate person")
+    duplicate_two.update_column(:name, "Near-Duplicate Person")
+    duplicate_three.update_column(:name, " Near   Duplicate  Person ")
+
+    SignIn.create!(person: duplicate_one, arrived_at: Time.current, left_at: Time.current + 30.minutes, is_haven_checkin: false)
+    SignIn.create!(person: duplicate_two, arrived_at: Time.current, left_at: Time.current + 45.minutes, is_haven_checkin: false)
+
+    post collapse_near_duplicates_guests_path
+
+    assert_redirected_to history_guests_path
+    assert_equal 1, Person.where(id: [ primary.id, duplicate_one.id, duplicate_two.id, duplicate_three.id ]).count
+
+    kept_person = Person.find_by(id: duplicate_one.id)
+    assert_not_nil kept_person
+    assert_equal "near@example.com", kept_person.email
+    assert_equal "0400000000", kept_person.phone
+    assert kept_person.volunteer?
+    assert_not kept_person.archived?
+    assert_equal 2, SignIn.where(person_id: kept_person.id).count
+  end
 end
