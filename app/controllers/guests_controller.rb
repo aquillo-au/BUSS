@@ -1,6 +1,6 @@
 class GuestsController < ApplicationController
   before_action :authenticate_user!
-  before_action :authenticate_admin!, only: [ :history, :export ]
+  before_action :authenticate_admin!, only: [ :history, :export, :collapse_near_duplicates ]
   before_action :auto_logout_overdue
   before_action :set_person, only: [ :edit, :update, :destroy, :arrive, :archive, :unarchive ]
 
@@ -280,6 +280,34 @@ end
   @avg_time_chart_data << { name: "Overall Average", data: overall_avg_data }
   end
 
+  def collapse_near_duplicates
+    groups = Person.order(:id).to_a
+                  .group_by { |person| normalized_name_for_dedupe(person.name) }
+                  .reject { |normalized_name, people| normalized_name.blank? || people.size < 2 }
+                  .values
+
+    merged_groups_count = 0
+    merged_people_count = 0
+
+    Person.transaction do
+      groups.each do |group|
+        primary = choose_primary_person_for_dedupe(group)
+        duplicates = group - [ primary ]
+        next if duplicates.empty?
+
+        merge_duplicate_people_into_primary!(primary, duplicates)
+        merged_groups_count += 1
+        merged_people_count += duplicates.size
+      end
+    end
+
+    redirect_to history_guests_path(period: params[:period], year: params[:year]),
+                notice: "Collapsed #{merged_groups_count} duplicate group#{'s' unless merged_groups_count == 1} (#{merged_people_count} record#{'s' unless merged_people_count == 1} merged)."
+  rescue StandardError => e
+    redirect_to history_guests_path(period: params[:period], year: params[:year]),
+                alert: "Could not collapse duplicates: #{e.message}"
+  end
+
   def archive
     @person.update!(archived: true, present: false)
     redirect_back fallback_location: history_guests_path, notice: "#{@person.name} archived."
@@ -392,5 +420,30 @@ end
     end
 
     nil
+  end
+
+  def normalized_name_for_dedupe(name)
+    name.to_s.downcase.gsub(/[^\p{Alnum}]+/u, " ").squish
+  end
+
+  def choose_primary_person_for_dedupe(group)
+    group.sort_by { |person| [ person.archived? ? 1 : 0, person.id ] }.first
+  end
+
+  def merge_duplicate_people_into_primary!(primary, duplicates)
+    updates = {}
+    updates[:archived] = false if primary.archived? && duplicates.any? { |person| !person.archived? }
+    updates[:present] = true if !primary.present? && duplicates.any?(&:present?)
+    updates[:volunteer] = true if !primary.volunteer? && duplicates.any?(&:volunteer?)
+
+    [ :email, :phone ].each do |field|
+      next unless primary.public_send(field).blank?
+
+      value = duplicates.map { |person| person.public_send(field) }.find(&:present?)
+      updates[field] = value if value.present?
+    end
+
+    primary.update_columns(updates.merge(updated_at: Time.current)) if updates.any?
+    duplicates.each { |duplicate| primary.merge_with!(duplicate) }
   end
 end

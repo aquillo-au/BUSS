@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     collection do
       get :history
       get :export
+      post :collapse_near_duplicates
     end
   end
 

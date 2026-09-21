@@ -15,14 +15,7 @@ class Person < ApplicationRecord
   end
 
   def merge_with!(other)
-  # Move associations
-  SignIn.where(person_id: other.id).update_all(person_id: self.id)
-  Note.where(person_id: other.id).update_all(person_id: self.id)
-  # Add other associations as needed
-
-  # Optionally merge attributes if desired, e.g. phone/email/history
-
-  # Delete the other person
-  other.destroy!
-end
+    SignIn.where(person_id: other.id).update_all(person_id: id)
+    other.destroy!
+  end
 end

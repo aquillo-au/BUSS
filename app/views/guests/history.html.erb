@@ -79,6 +79,13 @@
 
   <!-- Toggle: Everyone -->
   <div data-controller="toggle" class="mb-4">
+    <div class="mb-3">
+      <%= button_to "Collapse near-duplicate names",
+                    collapse_near_duplicates_guests_path(period: params[:period], year: params[:year]),
+                    method: :post,
+                    class: "btn btn-warning",
+                    data: { turbo_confirm: "This will merge people with similar names (case/punctuation/spacing differences). Continue?" } %>
+    </div>
     <button class="btn btn-secondary" data-action="click->toggle#toggle">
       <span data-toggle-target="label">Show/edit people</span>
     </button>
