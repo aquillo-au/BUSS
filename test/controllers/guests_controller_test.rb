@@ -59,7 +59,7 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     get history_guests_path(period: "year")
 
     assert_response :success
-    people_links = css_select("ul.list-group li.list-group-item strong a").map(&:text)
+    people_links = css_select("#admin-people-list li.list-group-item strong a").map(&:text)
 
     assert_operator people_links.index("Alpha Admin Person"), :<, people_links.index("Middle Admin Person")
     assert_operator people_links.index("Middle Admin Person"), :<, people_links.index("Zulu Admin Person")
