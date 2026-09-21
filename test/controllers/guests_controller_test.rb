@@ -59,7 +59,10 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     get history_guests_path(period: "year")
 
     assert_response :success
-    assert_match(/Alpha Admin Person.*Middle Admin Person.*Zulu Admin Person/m, response.body)
+    people_links = css_select("ul.list-group li.list-group-item strong a").map(&:text)
+
+    assert_operator people_links.index("Alpha Admin Person"), :<, people_links.index("Middle Admin Person")
+    assert_operator people_links.index("Middle Admin Person"), :<, people_links.index("Zulu Admin Person")
   end
 
   test "edit merge people select is alphabetical" do
@@ -71,6 +74,9 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     get edit_guest_path(person)
 
     assert_response :success
-    assert_match(/Alpha Merge Person.*Middle Merge Person.*Zulu Merge Person/m, response.body)
+    option_names = css_select("select[name='merge_with_id'] option").map(&:text) - [ "Select person to merge into" ]
+
+    assert_operator option_names.index("Alpha Merge Person"), :<, option_names.index("Middle Merge Person")
+    assert_operator option_names.index("Middle Merge Person"), :<, option_names.index("Zulu Merge Person")
   end
 end
