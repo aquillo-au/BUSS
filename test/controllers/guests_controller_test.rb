@@ -50,4 +50,27 @@ class GuestsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/"Average Attendance","data":\[\["#{date_one}",1\.5\],\["#{date_two}",1\.5\]\]/, response.body)
     assert_not_includes response.body, "4 sign-ins"
   end
+
+  test "history lists people alphabetically in admin section" do
+    Person.create!(name: "Zulu Admin Person")
+    Person.create!(name: "Alpha Admin Person")
+    Person.create!(name: "Middle Admin Person")
+
+    get history_guests_path(period: "year")
+
+    assert_response :success
+    assert_match(/Alpha Admin Person.*Middle Admin Person.*Zulu Admin Person/m, response.body)
+  end
+
+  test "edit merge people select is alphabetical" do
+    person = Person.create!(name: "Edit Target Person")
+    Person.create!(name: "Zulu Merge Person")
+    Person.create!(name: "Alpha Merge Person")
+    Person.create!(name: "Middle Merge Person")
+
+    get edit_guest_path(person)
+
+    assert_response :success
+    assert_match(/Alpha Merge Person.*Middle Merge Person.*Zulu Merge Person/m, response.body)
+  end
 end

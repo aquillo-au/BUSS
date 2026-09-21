@@ -5,7 +5,7 @@ class GuestsController < ApplicationController
   before_action :set_person, only: [ :edit, :update, :destroy, :arrive, :archive, :unarchive ]
 
   def index
-    @people = Person.all
+    @people = Person.order(:name)
     @not_present = Person.where(present: false, archived: false).order(:name)
     @present_sign_ins = SignIn.joins(:person).where(left_at: nil, people: { archived: false }).order("people.name")
     @new_person = Person.new
