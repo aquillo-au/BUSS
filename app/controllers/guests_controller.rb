@@ -154,7 +154,7 @@ end
       sign_ins = SignIn.includes(:person).where(is_haven_checkin: false).where("arrived_at >= ?", start_date).order(arrived_at: :desc)
     end
 
-    @people = Person.all
+    @people = Person.order(:name)
     @period = period
     @available_years = SignIn.where(is_haven_checkin: false).where.not(arrived_at: nil)
                             .pluck(:arrived_at).map(&:year).uniq.sort.reverse
